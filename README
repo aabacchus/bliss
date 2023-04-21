@@ -1,0 +1,29 @@
+An implementation of the kiss package manager in Lua.
+
+[ ] alternatives
+[ ] build
+[ ] hooks
+[ ] checksum
+[ ] download
+[ ] install
+[ ] list
+[ ] remove
+[ ] search
+[ ] update
+[ ] upgrade
+[x] version
+[ ] ext
+
+Why Lua?
+--------
+
+Lua ...
+ - shares many goals with KISS, such as simplicity and efficiency.
+ - offers advantages over shell as a "proper" programming language.
+ - can easily be extended by code written in C (etc).
+ - is relatively fast.
+
+Dependencies
+------------
+
+lua-posix library (https://github.com/luaposix/luaposix)
