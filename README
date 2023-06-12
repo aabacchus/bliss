@@ -11,7 +11,7 @@ An implementation of the kiss package manager in Lua.
 [ ] install
 [ ] list
 [ ] remove
-[ ] search
+[x] search
 [ ] update
 [ ] upgrade
 [x] version
