@@ -1,9 +1,7 @@
 -- Copyright 2023 phoebos
 
--- vars
-local colors
--- funcs
-local setup, setup_colors, check_execute, get_available, log, warn, die, run, capture
+local colors = {"", "", ""}
+local setup, setup_colors, check_execute, get_available, split, log, warn, die, run, capture, shallowcopy
 
 function setup()
     colors = setup_colors()
@@ -19,9 +17,9 @@ function setup()
         GET     = os.getenv("KISS_GET")
                     or get_available("aria2c", "axel", "curl", "wget", "wget2")
                     or warn("No download utility found (aria2c, axel, curl, wget, wget2"),
-        HOOK    = os.getenv("KISS_HOOK"),
+        HOOK    = split(os.getenv("KISS_HOOK"), ':'),
         KEEPLOG = os.getenv("KISS_KEEPLOG"),
-        PATH    = os.getenv("KISS_PATH"),
+        PATH    = split(os.getenv("KISS_PATH"), ':'),
         PID     = os.getenv("KISS_PID") or nil,
         PROMPT  = os.getenv("KISS_PROMPT"),
         ROOT    = os.getenv("KISS_ROOT") or "",
@@ -35,7 +33,7 @@ function setup()
 end
 
 function setup_colors()
-    local t = {"", "", ""}
+    local t = {}
     if os.getenv("KISS_COLOR") ~= "0" then
         t[1] = "\x1B[1;33m"
         t[2] = "\x1B[1;34m"
@@ -58,7 +56,13 @@ function get_available(...)
     return nil
 end
 
--- utilities
+function split(s, sep)
+    local c = {}
+    for a in s:gmatch("[^%s"..sep.."]+") do
+        table.insert(c, a)
+    end
+    return c
+end
 
 function log(name, msg, category)
     -- This is a direct translation of kiss's log(). Quite hacky.
@@ -98,13 +102,20 @@ function capture(cmd)
     return res
 end
 
-local P = {
-    setup   = setup,
-    log     = log,
-    warn    = warn,
-    die     = die,
-    run     = run,
-    capture = capture,
+function shallowcopy(t)
+    local u = {}
+    for k,v in pairs(t) do u[k] = v end
+    return t
+end
+
+local M = {
+    setup       = setup,
+    log         = log,
+    warn        = warn,
+    die         = die,
+    run         = run,
+    capture     = capture,
+    shallowcopy = shallowcopy,
 }
 
-return P
+return M
