@@ -27,7 +27,19 @@ local function search(env, arg)
     end
 end
 
+local function pkg_find(env, name)
+    for _, repo in ipairs(env.PATH) do
+        local g = repo .. '/' .. name
+        local sb = sys_stat.stat(g)
+        if sb and sys_stat.S_ISDIR(sb.st_mode) ~= 0 then
+            return g
+        end
+    end
+    utils.die("'"..name.."' not found")
+end
+
 local M = {
     search = search,
+    pkg_find = pkg_find,
 }
 return M
