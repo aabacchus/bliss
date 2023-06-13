@@ -12,33 +12,25 @@ local function search(env, arg)
         local res = {}
         for _, repo in ipairs(path) do
             local g = glob.glob(repo .. '/' .. a, 0)
+
             for _, i in pairs(g or {}) do
                 local sb = sys_stat.stat(i)
+
                 if sb and sys_stat.S_ISDIR(sb.st_mode) ~= 0 then
                     table.insert(res, i)
                 end
             end
         end
+
         if #res == 0 then
             utils.die("'"..a.."' not found")
         end
+
         for _, v in ipairs(res) do print(v) end
     end
 end
 
-local function pkg_find(env, name)
-    for _, repo in ipairs(env.PATH) do
-        local g = repo .. '/' .. name
-        local sb = sys_stat.stat(g)
-        if sb and sys_stat.S_ISDIR(sb.st_mode) ~= 0 then
-            return g
-        end
-    end
-    utils.die("'"..name.."' not found")
-end
-
 local M = {
     search = search,
-    pkg_find = pkg_find,
 }
 return M

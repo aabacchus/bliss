@@ -1,15 +1,6 @@
 local utils = require 'bliss.utils'
+local pkg = require 'bliss.pkg'
 local dirent = require 'posix.dirent'
-
-local function pkg_version(env, pkg)
-    local v = env.pkg_db .. '/' .. pkg .. "/version"
-    local f = io.open(v, 'r')
-    if not f then utils.die("'"..pkg.."' not found") end
-    local ver = f:read()
-    f:close()
-    if not ver then utils.die(pkg, "error reading version") end
-    return utils.split(ver, ' ')
-end
 
 local function list(env, arg)
     if #arg == 0 then
@@ -20,9 +11,9 @@ local function list(env, arg)
         end
         table.sort(arg)
     end
-    for _,pkg in ipairs(arg) do
-        local ver = pkg_version(env, pkg)
-        io.write(string.format("%s %s-%s\n", pkg, ver[1], ver[2]))
+    for _,a in ipairs(arg) do
+        local ver = pkg.find_version(a, {env.pkg_db})
+        io.write(string.format("%s %s-%s\n", a, ver[1], ver[2]))
     end
 end
 
