@@ -1,0 +1,46 @@
+bliss/ contains the library, main.lua provides an interface to the library.
+The library is split into multiple files, but bliss/init.lua collects them all
+together so that the whole library is loaded if you run:
+
+    local bliss = require 'bliss'
+
+Most of the library functions are put directly into the bliss table:
+    bliss.setup
+    bliss.split
+    bliss.log
+    bliss.warn
+    bliss.run
+    bliss.shallowcopy
+    bliss.capture
+    bliss.die
+    bliss.search
+    bliss.pkg_find
+    bliss.list
+
+but some are put into a subtable:
+    bliss.b3sum.init
+    bliss.b3sum.update
+    bliss.b3sum.finalize
+
+OVERVIEW
+--------
+
+Setup the environment (colors, read KISS_* variables):
+
+    local env = bliss.setup()
+
+BLAKE3 wrapper
+--------------
+
+Initialise the hasher context:
+
+    local ctx = bliss.b3sum.init()
+
+Add string input to the hasher:
+
+    bliss.b3sum.update(ctx, data)
+
+Finalize the hasher and return the output encoded as a hex string. The default value of n is 32.
+
+    bliss.b3sum.finalize(ctx [, n])
+
