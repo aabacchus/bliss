@@ -1,5 +1,4 @@
-local cwd = (...):gsub('%.[^%.]+$', '')
-local utils = require(cwd .. '.utils')
+local utils = require 'bliss.utils'
 local dirent = require 'posix.dirent'
 
 local function pkg_version(env, pkg)

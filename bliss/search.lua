@@ -1,5 +1,4 @@
-local cwd = (...):gsub('%.[^%.]+$', '')
-local utils = require(cwd .. '.utils')
+local utils = require 'bliss.utils'
 local glob = require 'posix.glob'
 local sys_stat = require 'posix.sys.stat'
 
