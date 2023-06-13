@@ -10,3 +10,11 @@ for k,v in pairs(env) do
         print(k,v)
     end
 end
+
+local ctx = bliss.b3sum.init()
+bliss.b3sum.update(ctx, 'test\n')
+local obs = bliss.b3sum.finalize(ctx)
+
+local exp = bliss.capture("echo test | b3sum")
+local exp_ = bliss.split(exp[1], ' ')[1]
+assert(exp_ == obs)

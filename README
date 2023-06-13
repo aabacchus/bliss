@@ -30,3 +30,4 @@ Dependencies
 ------------
 
 lua-posix library (https://github.com/luaposix/luaposix)
+BLAKE3 C library (https://git.sr.ht/~mcf/b3sum)
