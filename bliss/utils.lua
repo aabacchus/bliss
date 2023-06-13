@@ -58,7 +58,7 @@ end
 
 function split(s, sep)
     local c = {}
-    for a in s:gmatch("[^%s"..sep.."]+") do
+    for a in string.gmatch(s, "[^%s"..sep.."]+") do
         table.insert(c, a)
     end
     return c
@@ -110,6 +110,7 @@ end
 
 local M = {
     setup       = setup,
+    split       = split,
     log         = log,
     warn        = warn,
     die         = die,

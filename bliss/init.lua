@@ -2,7 +2,7 @@ local cwd = (...):gsub('%.init$', '')
 
 local M = {}
 
-local names = {'utils', 'search'}
+local names = {'utils', 'search', 'list'}
 for i = 1, #names do
     local name = names[i]
     local t = require(cwd .. '.' .. name)
