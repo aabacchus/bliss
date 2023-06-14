@@ -4,9 +4,9 @@ local sys_stat = require 'posix.sys.stat'
 
 local function search(env, arg)
 
-    -- append pkg_db to search path
+    -- append sys_db to search path
     local path = utils.shallowcopy(env.PATH)
-    table.insert(path, env.pkg_db)
+    table.insert(path, env.sys_db)
 
     for _, a in ipairs(arg) do
         local res = {}

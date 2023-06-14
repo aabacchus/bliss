@@ -55,5 +55,5 @@ local function args(arg)
     end
 end
 
-env = bliss.setup()
+env, atexit = bliss.setup()
 args(arg)
