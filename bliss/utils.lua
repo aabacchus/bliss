@@ -1,7 +1,9 @@
 -- Copyright 2023 phoebos
+local sys_stat = require 'posix.sys.stat'
+local unistd = require 'posix.unistd'
 
 local colors = {"", "", ""}
-local setup, setup_colors, check_execute, get_available, split, log, warn, die, run, capture, shallowcopy
+local setup, setup_colors, check_execute, get_available, split, mkdirp, log, warn, die, run, capture, shallowcopy
 
 function setup()
     colors = setup_colors()
@@ -20,7 +22,7 @@ function setup()
         HOOK    = split(os.getenv("KISS_HOOK"), ':'),
         KEEPLOG = os.getenv("KISS_KEEPLOG"),
         PATH    = split(os.getenv("KISS_PATH"), ':'),
-        PID     = os.getenv("KISS_PID") or nil,
+        PID     = os.getenv("KISS_PID") or unistd.getpid(),
         PROMPT  = os.getenv("KISS_PROMPT"),
         ROOT    = os.getenv("KISS_ROOT") or "",
         SU      = os.getenv("KISS_SU") or get_available("ssu", "sudo", "doas", "su"),
@@ -29,6 +31,8 @@ function setup()
     }
     -- pkg_db depends on ROOT so must be set after env is constructed
     env.pkg_db  = env.ROOT .. "/var/db/kiss/installed"
+
+    mkdirp(env.ROOT .. '/')
     return env
 end
 
@@ -64,6 +68,21 @@ function split(s, sep)
     return c
 end
 
+function mkdirp(path)
+    assert(string.sub(path, 1, 1) == '/')
+    local t = split(path, '/')
+    local p = ''
+    for _, v in ipairs(t) do
+        p = p .. '/' .. v
+
+        local sb = sys_stat.stat(p)
+        if not sb then
+            local c, msg = sys_stat.mkdir(p)
+            if not c then die("mkdir " .. msg) end
+        end
+    end
+end
+
 function log(name, msg, category)
     -- This is a direct translation of kiss's log(). Quite hacky.
     io.stderr:write(string.format("%s%s %s%s%s %s\n",
@@ -86,9 +105,8 @@ end
 
 function run(cmd)
     io.stderr:write(cmd.."\n")
-    local res, ty, code
     -- faster to use fork + posix.unistd.execp?
-    res, ty, code = os.execute(cmd)
+    local res, ty, code = os.execute(cmd)
     return res
 end
 
@@ -111,6 +129,7 @@ end
 local M = {
     setup       = setup,
     split       = split,
+    mkdirp      = mkdirp,
     log         = log,
     warn        = warn,
     die         = die,
