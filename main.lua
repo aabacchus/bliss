@@ -7,16 +7,16 @@ end
 
 local function usage()
     bliss.log("bliss [a|b|c|d|i|l|r|s|u|U|v] [pkg]...")
-    bliss.log("alternatives List and swap alternatives")
-    bliss.log("build        Build packages")
+    --bliss.log("alternatives List and swap alternatives")
+    --bliss.log("build        Build packages")
     bliss.log("checksum     Generate checksums")
     bliss.log("download     Download sources")
-    bliss.log("install      Install packages")
+    --bliss.log("install      Install packages")
     bliss.log("list         List installed packages")
-    bliss.log("remove       Remove packages")
+    --bliss.log("remove       Remove packages")
     bliss.log("search       Search for packages")
-    bliss.log("update       Update the repositories")
-    bliss.log("upgrade      Update the system")
+    --bliss.log("update       Update the repositories")
+    --bliss.log("upgrade      Update the system")
     bliss.log("version      Package manager version")
 
     os.exit(true)
@@ -45,6 +45,9 @@ local function args(arg)
 
     -- shift
     table.remove(arg, 1)
+
+    -- TODO: pkg_order
+    -- TODO: prepend PWD to PATH if no args and action ~= list
 
     local f = args_map[char]
     if f then
