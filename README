@@ -6,7 +6,7 @@ An implementation of the kiss package manager in Lua.
 [ ] alternatives
 [ ] build
 [ ] hooks
-[ ] checksum
+[x] checksum
 [x] download
 [ ] install
 [x] list
