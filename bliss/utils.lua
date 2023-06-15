@@ -158,6 +158,7 @@ end
 
 function die(name, msg)
     log(name, msg, "ERROR")
+    print(debug.traceback())
     os.exit(false)
 end
 
