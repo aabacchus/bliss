@@ -7,7 +7,9 @@ local function read_lines(file)
     local f = io.open(file)
     if not f then return {} end
     for line in f:lines() do
-        table.insert(t, utils.split(line, ' '))
+        if #line ~= 0 and string.sub(line, 1, 1) ~= '#' then
+            table.insert(t, utils.split(line, ' '))
+        end
     end
     f:close()
     return t
@@ -83,16 +85,32 @@ local function resolve(pkg, sources, env, repo_dir)
     return caches
 end
 
+local function recurse_all_deps(env, pkgs)
+    local deps = {}
+    for _, p in ipairs(pkgs) do
+        local d  = find_depends(p, env.PATH)
+        local d_ = {}
+        for _,v in ipairs(d) do
+            table.insert(d_, v[1])
+        end
+
+        -- recurse
+        local d__ = recurse_all_deps(env, d_)
+        for _,w in ipairs(d__) do
+            table.insert(deps, w)
+        end
+
+        table.insert(deps, {p, d_})
+    end
+    return deps
+end
+
 local function order(env, pkgs)
     local t = tsort.new()
 
-    for _,p in ipairs(pkgs) do
-        local deps = find_depends(p, env.PATH)
-        local deps_nomake = {}
-        for _,v in ipairs(deps) do
-            table.insert(deps_nomake, v[1])
-        end
-        t:add(p, deps_nomake)
+    local deps = recurse_all_deps(env, pkgs)
+    for _,v in ipairs(deps) do
+        t:add(v[1], v[2])
     end
 
     local s, x,y = t:sort()
