@@ -46,7 +46,7 @@ local function checksum(env, arg)
     end
 end
 
-local function verify_checksums(pkg, path)
+local function verify_checksums(p, path)
     -- TODO
 end
 

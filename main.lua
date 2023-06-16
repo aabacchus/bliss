@@ -22,7 +22,7 @@ local function usage()
     os.exit(true)
 end
 
-local function args(arg)
+local function args(env, arg)
     local args_map = {
         a = bliss.alternatives,
         b = bliss.build,
@@ -58,5 +58,5 @@ local function args(arg)
     end
 end
 
-env, atexit = bliss.setup()
-args(arg)
+local env, atexit = bliss.setup()
+args(env, arg)

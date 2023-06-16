@@ -1,5 +1,4 @@
 local utils = require 'bliss.utils'
-local search = require 'bliss.search'
 local sys_stat = require 'posix.sys.stat'
 
 local function read_lines(file)

@@ -4,7 +4,7 @@ local unistd = require 'posix.unistd'
 local signal = require 'posix.signal'
 
 local colors = {"", "", ""}
-local setup, setup_colors, check_execute, get_available, trap_on, trap_off, split, mkdirp, rm_rf, log, warn, die, run, capture, shallowcopy
+local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, rm_rf, log, warn, die, run, capture, shallowcopy
 
 function setup()
     colors = setup_colors()
@@ -77,13 +77,25 @@ function check_execute()
 end
 
 function get_available(...)
-    local x, p, res
+    local x, res
     for i = 1, select('#', ...) do
         x = select(i, ...)
         res = capture("command -v " .. x)
         if res[1] then return res[1] end
     end
     return nil
+end
+
+-- returns a function with cached env so that it can be called without args or globals.
+function get_pkg_clean(env)
+    return function ()
+        if env.DEBUG ~= 0 then return end
+        if env._LVL == 1 then
+            rm_rf(env.proc)
+        else
+            rm_rf(env.tar_dir)
+        end
+    end
 end
 
 function trap_on(env)
@@ -97,18 +109,6 @@ end
 function trap_off(atexit)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     setmetatable(atexit, {})
-end
-
--- returns a function with cached env so that it can be called without args or globals.
-function get_pkg_clean(env)
-    return function ()
-        if env.DEBUG ~= 0 then return end
-        if env._LVL == 1 then
-            rm_rf(env.proc)
-        else
-            rm_rf(env.tar_dir)
-        end
-    end
 end
 
 function split(s, sep)
@@ -165,8 +165,7 @@ end
 function run(cmd)
     io.stderr:write(cmd.."\n")
     -- faster to use fork + posix.unistd.execp?
-    local res, ty, code = os.execute(cmd)
-    return res
+    return os.execute(cmd)
 end
 
 -- Returns an array of lines printed by cmd
@@ -182,7 +181,7 @@ end
 function shallowcopy(t)
     local u = {}
     for k,v in pairs(t) do u[k] = v end
-    return t
+    return u
 end
 
 local M = {

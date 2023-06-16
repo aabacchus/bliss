@@ -1,4 +1,3 @@
-local utils = require 'bliss.utils'
 local pkg = require 'bliss.pkg'
 local dirent = require 'posix.dirent'
 
