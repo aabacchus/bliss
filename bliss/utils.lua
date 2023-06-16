@@ -4,7 +4,7 @@ local unistd = require 'posix.unistd'
 local signal = require 'posix.signal'
 
 local colors = {"", "", ""}
-local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, rm_rf, log, warn, die, run, capture, shallowcopy
+local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, rm_rf, log, warn, die, prompt, run, capture, shallowcopy
 
 function setup()
     colors = setup_colors()
@@ -162,6 +162,14 @@ function die(name, msg)
     os.exit(false)
 end
 
+function prompt(env, msg)
+    if msg then log(msg) end
+    log("Continue?: Press Enter to continue or Ctrl+C to abort")
+    if env.PROMPT ~= 0 then
+        io.stdin:read()
+    end
+end
+
 function run(cmd)
     io.stderr:write(cmd.."\n")
     -- faster to use fork + posix.unistd.execp?
@@ -194,6 +202,7 @@ local M = {
     log         = log,
     warn        = warn,
     die         = die,
+    prompt      = prompt,
     run         = run,
     capture     = capture,
     shallowcopy = shallowcopy,
