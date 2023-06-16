@@ -1,4 +1,5 @@
 local utils = require 'bliss.utils'
+local tsort = require 'bliss.tsort'
 local sys_stat = require 'posix.sys.stat'
 
 local function read_lines(file)
@@ -31,6 +32,11 @@ local function find_version(pkg, path)
     if #ver == 0 then utils.die(pkg, "error reading version") end
 
     return ver[1]
+end
+
+local function find_depends(pkg, path)
+    local p = find(pkg, path) .. "/depends"
+    return read_lines(p)
 end
 
 local function find_sources(pkg, repo_dir)
@@ -77,10 +83,37 @@ local function resolve(pkg, sources, env, repo_dir)
     return caches
 end
 
+local function order(env, pkgs)
+    local t = tsort.new()
+
+    for _,p in ipairs(pkgs) do
+        local deps = find_depends(p, env.PATH)
+        local deps_nomake = {}
+        for _,v in ipairs(deps) do
+            table.insert(deps_nomake, v[1])
+        end
+        t:add(p, deps_nomake)
+    end
+
+    local s, x,y = t:sort()
+    if not s then
+        utils.die("Circular dependency detected: " .. x .. " <> " .. y)
+    end
+
+    -- return s reversed (in order to be built)
+    local r = {}
+    for i = #s, 1, -1 do
+        r[i] = s[i]
+    end
+    return r
+end
+
 local M = {
     find = find,
     find_version = find_version,
+    find_depends = find_depends,
     find_sources = find_sources,
     resolve = resolve,
+    order = order,
 }
 return M
