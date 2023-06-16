@@ -33,6 +33,11 @@ local function find_version(pkg, path)
     return ver[1]
 end
 
+local function find_checksums(pkg, repo_dir)
+    local p = repo_dir .. "/checksums"
+    return read_lines(p)
+end
+
 local function find_sources(pkg, repo_dir)
     local p = repo_dir .. "/sources"
 
@@ -80,6 +85,7 @@ end
 local M = {
     find = find,
     find_version = find_version,
+    find_checksums = find_checksums,
     find_sources = find_sources,
     resolve = resolve,
 }

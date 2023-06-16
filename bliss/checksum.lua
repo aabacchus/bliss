@@ -46,12 +46,22 @@ local function checksum(env, arg)
     end
 end
 
-local function verify_checksums(p, path)
-    -- TODO
+local function verify_checksums(p, repo_dir, caches)
+    local sums = pkg.find_checksums(p, repo_dir)
+    for i,v in ipairs(caches) do
+        local sum = checksum_file(v)
+        if #sums[i][1] == 64 then
+            utils.die(p, "Detected sha256 checksums")
+        end
+        if sums[i][1] ~= sum and sums[i] ~= "SKIP" then
+            utils.die(p, "checksum mismatch for file " .. v)
+        end
+    end
 end
 
 local M = {
     checksum = checksum,
     checksum_file = checksum_file,
+    verify_checksums = verify_checksums,
 }
 return M

@@ -18,3 +18,9 @@ local obs = bliss.b3sum.finalize(ctx)
 local exp = bliss.capture("echo test | b3sum")
 local exp_ = bliss.split(exp[1], ' ')[1]
 assert(exp_ == obs)
+
+local p = 'feh'
+local repo_dir = bliss.find(p, env.PATH)
+local sources = bliss.find_sources(p, repo_dir)
+local caches = bliss.resolve(p, sources, env, repo_dir)
+bliss.verify_checksums(p, repo_dir, caches)
