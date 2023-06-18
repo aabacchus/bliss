@@ -4,7 +4,7 @@ local unistd = require 'posix.unistd'
 local signal = require 'posix.signal'
 
 local colors = {"", "", ""}
-local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, rm_rf, log, warn, die, prompt, run, capture, shallowcopy
+local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, mkcd, rm_rf, log, warn, die, prompt, run, capture, shallowcopy
 
 function setup()
     colors = setup_colors()
@@ -137,6 +137,12 @@ function mkdirp(...)
     end
 end
 
+function mkcd(...)
+    mkdirp(...)
+    local first = select(1, ...)
+    unistd.chdir(first)
+end
+
 function rm_rf(path)
     os.execute("rm -rf \"" .. path .. "\"")
 end
@@ -198,6 +204,7 @@ local M = {
     trap_off    = trap_off,
     split       = split,
     mkdirp      = mkdirp,
+    mkcd        = mkcd,
     rm_rf       = rm_rf,
     log         = log,
     warn        = warn,
