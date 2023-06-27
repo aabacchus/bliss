@@ -31,6 +31,12 @@ function setup()
         TMPDIR  = os.getenv("KISS_TMPDIR"),
         time    = os.date("%Y-%m-%d-%H:%M"),
     }
+
+    local permitted_compress = {bz2 = true, gz = true, lzma = true, lz = true, xz = true, zst = true}
+    if not permitted_compress[env.COMPRESS] then
+        die("KISS_COMPRESS='"..env.COMPRESS.."' is not permitted (bz2, gz, lzma, lz, xz, zst)")
+    end
+
     -- sys_db depends on ROOT so must be set after env is constructed
     env.pkg_db  = "var/db/kiss/installed"
     env.cho_db  = "var/db/kiss/choices"
