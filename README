@@ -30,7 +30,7 @@ Dependencies
 ------------
 
 lua-posix library (https://github.com/luaposix/luaposix)
-BLAKE3 C library (https://git.sr.ht/~mcf/b3sum)
+BLAKE3 C library (https://git.sr.ht/~mcf/b3sum) (built with -fPIC)
 
 Rationale: plain Lua lacks UNIX-specific bindings which we need (working with
 files and paths) so either I would write a set of Lua bindings to C, but it's as
