@@ -10,7 +10,9 @@ local checksum = require 'bliss.checksum'
 --     pkg,
 --     repo_dir,
 --     sources,
---     caches
+--     caches,
+--     ver,
+--     rel,
 -- }
 --]]
 
@@ -40,7 +42,7 @@ local function build_build(env, p)
     utils.log(p.pkg, "Starting build")
 
     local f = p.repo_dir .. '/build'
-    if not utils.run(f .. " " ..env.pkg_dir..'/'..p.pkg) then
+    if not utils.run(f .. " " ..env.pkg_dir..'/'..p.pkg .. " " .. p.ver) then
         utils.die(p.pkg, "Build failed")
     end
 end
@@ -60,12 +62,13 @@ local function build(env, arg)
 
         local repo_dir = pkg.find(p, path)
         local sources = pkg.find_sources(p, repo_dir)
+        local version = pkg.find_version(p, path)
         local caches = pkg.resolve(p, sources, env, repo_dir)
 
         download.download_sources(env, p, sources, caches)
         checksum.verify_checksums(p, repo_dir, caches)
 
-        table.insert(db, {pkg = p, repo_dir = repo_dir, sources = sources, caches = caches})
+        table.insert(db, {pkg = p, repo_dir = repo_dir, sources = sources, caches = caches, ver = version[1], rel = version[2]})
     end
 
     -- Now build
