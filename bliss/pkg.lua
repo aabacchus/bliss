@@ -23,9 +23,8 @@ local function find(name, path)
     utils.die("'"..name.."' not found")
 end
 
-local function find_version(pkg, path)
-    local pkgpath = find(pkg, path)
-    local v = pkgpath .. "/version"
+local function find_version(pkg, repo_dir)
+    local v = repo_dir .. "/version"
 
     local ver = read_lines(v)
     if #ver == 0 then utils.die(pkg, "error reading version") end

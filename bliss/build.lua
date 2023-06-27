@@ -62,7 +62,7 @@ local function build(env, arg)
 
         local repo_dir = pkg.find(p, path)
         local sources = pkg.find_sources(p, repo_dir)
-        local version = pkg.find_version(p, path)
+        local version = pkg.find_version(p, repo_dir)
         local caches = pkg.resolve(p, sources, env, repo_dir)
 
         download.download_sources(env, p, sources, caches)

@@ -11,7 +11,9 @@ local function list(env, arg)
         table.sort(arg)
     end
     for _,a in ipairs(arg) do
-        local ver = pkg.find_version(a, {env.sys_db})
+        local repo_dir = env.sys_db .. '/' .. a
+        local ver = pkg.find_version(a, repo_dir)
+
         io.write(string.format("%s %s-%s\n", a, ver[1], ver[2]))
     end
 end
