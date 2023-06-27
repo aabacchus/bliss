@@ -8,7 +8,7 @@ end
 local function usage()
     bliss.log("bliss [a|b|c|d|i|l|r|s|u|U|v] [pkg]...")
     --bliss.log("alternatives List and swap alternatives")
-    --bliss.log("build        Build packages")
+    bliss.log("build        Build packages")
     bliss.log("checksum     Generate checksums")
     bliss.log("download     Download sources")
     --bliss.log("install      Install packages")
