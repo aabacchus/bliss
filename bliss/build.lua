@@ -3,6 +3,8 @@ local archive = require 'bliss.archive'
 local pkg = require 'bliss.pkg'
 local download = require 'bliss.download'
 local checksum = require 'bliss.checksum'
+local glob = require 'posix.glob'
+local libgen = require 'posix.libgen'
 
 --[[
 -- These functions use a table containing cached package variables:
@@ -41,10 +43,67 @@ local function build_build(env, p)
     utils.mkcd(env.mak_dir..'/'..p.pkg, env.pkg_dir..'/'..p.pkg..'/'..env.pkg_db)
     utils.log(p.pkg, "Starting build")
 
+    -- TODO: tee log
+
     local f = p.repo_dir .. '/build'
+    -- TODO: env (execp?)
     if not utils.run(f .. " " ..env.pkg_dir..'/'..p.pkg .. " " .. p.ver) then
         utils.die(p.pkg, "Build failed")
     end
+
+    -- copy repository files to the package directory.
+    if not utils.run("cp -LRf \"" .. p.repo_dir .. "\" \"" .. env.pkg_dir .. "/" .. p.pkg .. "/" .. env.pkg_db .. "/\"") then os.exit(false) end
+
+    utils.log(p.pkg, "Successfully built package")
+end
+
+local function gen_manifest(env, p)
+    utils.log(p.pkg, "Generating manifest")
+
+    -- Instead of running find, walk through the directories ourselves.
+    local function recurse_find(dir)
+        local mani = {}
+
+        -- Make use of GLOB_MARK to append a slash to directories for us.
+        local t = glob.glob(dir, glob.GLOB_MARK)
+
+        for _,v in ipairs(t) do
+            if libgen.basename(v) ~= 'charset.alias' and v:sub(-3) ~= '.la' then
+                table.insert(mani, v)
+                if v:sub(-1) == '/' then
+                    local m = recurse_find(v .. '*')
+
+                    -- join this result to mani.
+                    for i=1,#m do
+                        mani[#mani + 1] = m[i]
+                    end
+                end
+            end
+        end
+
+        return mani
+    end
+
+    local destdir = env.pkg_dir .. '/' .. p.pkg
+    local manifest_file = destdir .. '/' .. env.pkg_db .. '/' .. p.pkg .. '/manifest'
+
+    local mani = recurse_find(destdir .. '/*')
+
+    table.insert(mani, manifest_file)
+    -- TODO: etcsums
+
+    -- Sort in reverse.
+    table.sort(mani, function (a,b) return b < a end)
+
+    -- Remove the prefix from each line and write to the manifest file.
+    local f = io.open(manifest_file, 'w')
+    local prefix_len = string.len(destdir)
+
+    for _,v in ipairs(mani) do
+        f:write(v:sub(prefix_len + 1) .. '\n')
+    end
+
+    f:close()
 end
 
 local function build(env, arg)
@@ -76,7 +135,8 @@ local function build(env, arg)
         build_extract(env, p)
         build_build(env, p)
 
-        --local mani = manifest(env.pkg_dir, p)
+        gen_manifest(env, p)
+        archive.tar_create(env, p)
     end
 end
 
