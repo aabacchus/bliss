@@ -1,22 +1,13 @@
+BLISS
+=====
+
 bliss/ contains the library, main.lua provides an interface to the library.
 The library is split into multiple files, but bliss/init.lua collects them all
 together so that the whole library is loaded if you run:
 
     local bliss = require 'bliss'
 
-Most of the library functions are put directly into the bliss table:
-    bliss.setup
-    bliss.split
-    bliss.log
-    bliss.warn
-    bliss.run
-    bliss.shallowcopy
-    bliss.capture
-    bliss.die
-    bliss.search
-    bliss.pkg_find
-    bliss.list
-
+Most of the library functions are put directly into the bliss table (eg bliss.setup)
 but some are put into a subtable:
     bliss.b3sum.init
     bliss.b3sum.update
@@ -27,7 +18,11 @@ OVERVIEW
 
 Setup the environment (colors, read KISS_* variables):
 
-    local env = bliss.setup()
+    local env, atexit = bliss.setup()
+
+atexit must be kept in scope until the end of the program because it implements
+an EXIT handler by means of a finalizer (__gc). Beware that os.exit has been
+monkey-patched so that the Lua state is properly closed by default.
 
 BLAKE3 wrapper
 --------------
@@ -44,3 +39,15 @@ Finalize the hasher and return the output encoded as a hex string. The default v
 
     bliss.b3sum.finalize(ctx [, n])
 
+MISC
+----
+
+If writing a library using bliss, you may prefer to require each submodule individually, like this:
+
+    local pkg = require 'bliss.pkg'
+    local utils = require 'bliss.utils'
+
+    utils.setup()
+    ...
+
+rather than use the init.lua helper which bundles everything together. The submodules use this style themselves.
