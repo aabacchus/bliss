@@ -1,6 +1,6 @@
-local utils = require 'bliss.utils'
-local glob = require 'posix.glob'
-local sys_stat = require 'posix.sys.stat'
+local utils = require "bliss.utils"
+local glob = require "posix.glob"
+local sys_stat = require "posix.sys.stat"
 
 local function search(env, arg)
 
@@ -11,7 +11,7 @@ local function search(env, arg)
     for _, a in ipairs(arg) do
         local res = {}
         for _, repo in ipairs(path) do
-            local g = glob.glob(repo .. '/' .. a, 0)
+            local g = glob.glob(repo .. "/" .. a, 0)
 
             for _, i in pairs(g or {}) do
                 local sb = sys_stat.stat(i)

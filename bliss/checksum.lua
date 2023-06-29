@@ -1,7 +1,7 @@
-local utils = require 'bliss.utils'
-local b3sum = require 'bliss.b3sum'
-local pkg = require 'bliss.pkg'
-local download = require 'bliss.download'
+local utils = require "bliss.utils"
+local b3sum = require "bliss.b3sum"
+local pkg = require "bliss.pkg"
+local download = require "bliss.download"
 
 -- returns a string of the BLAKE3 checksum of the contents of filename
 local function checksum_file(filename)
@@ -25,15 +25,15 @@ local function checksum(env, arg)
 
         download.download_sources(env, p, sources, cache)
 
-        local f = assert(io.open(repo_dir .. '/checksums', 'w'))
+        local f = assert(io.open(repo_dir .. "/checksums", "w"))
 
-        local sums = ''
+        local sums = ""
         for i, v in ipairs(cache) do
-            local map = {['git+'] = 1, ['http'] = 2}
+            local map = {["git+"] = 1, ["http"] = 2}
             local t = map[string.sub(sources[i][1], 1, 4)] or 3
             if t ~= 1 then
                 local sum = checksum_file(v)
-                sums = sums .. sum .. '\n'
+                sums = sums .. sum .. "\n"
             end
         end
         if #sums ~= 0 then

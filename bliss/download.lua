@@ -1,7 +1,7 @@
-local utils = require 'bliss.utils'
-local pkg = require 'bliss.pkg'
-local sys_stat = require 'posix.sys.stat'
-local libgen = require 'posix.libgen'
+local utils = require "bliss.utils"
+local pkg = require "bliss.pkg"
+local sys_stat = require "posix.sys.stat"
+local libgen = require "posix.libgen"
 
 local function git(env, p, source, dest)
     utils.die("git is not yet supported")
@@ -15,11 +15,11 @@ local function http(env, p, source, dest)
         -- TODO: use a library?
         if not env.GET then utils.die("No http download utility available") end
         local args_map = {
-            aria2c = {'-d', '/', '-o'},
-            axel = {'-o'},
-            curl = {'-fLo'},
-            wget = {'-O'},
-            wget2 = {'-O'},
+            aria2c = {"-d", "/", "-o"},
+            axel = {"-o"},
+            curl = {"-fLo"},
+            wget = {"-O"},
+            wget2 = {"-O"},
         }
         local args = args_map[libgen.basename(env.GET)] or utils.die("'"..env.GET.."' is unsupported as KISS_GET")
 
@@ -45,7 +45,7 @@ end
 local function download_sources(env, p, sources, dests)
     assert(#dests == #sources)
 
-    local map = {['git+'] = git, ['http'] = http}
+    local map = {["git+"] = git, ["http"] = http}
 
     for k,v in ipairs(sources) do
         local f = map[string.sub(v[1], 1, 4)] or file

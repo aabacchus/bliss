@@ -1,12 +1,12 @@
-local utils = require 'bliss.utils'
-local sys_stat = require 'posix.sys.stat'
+local utils = require "bliss.utils"
+local sys_stat = require "posix.sys.stat"
 
 local function read_lines(file)
     local t = {}
     local f = io.open(file)
     if not f then return {} end
     for line in f:lines() do
-        table.insert(t, utils.split(line, ' '))
+        table.insert(t, utils.split(line, " "))
     end
     f:close()
     return t
@@ -14,7 +14,7 @@ end
 
 local function find(name, path)
     for _, repo in ipairs(path) do
-        local g = repo .. '/' .. name
+        local g = repo .. "/" .. name
         local sb = sys_stat.stat(g)
         if sb and sys_stat.S_ISDIR(sb.st_mode) ~= 0 then
             return g
@@ -46,21 +46,21 @@ local function find_sources(pkg, repo_dir)
 end
 
 local function resolve_git(pkg, source, env)
-    local fp = string.match(source[1], '/([^/]+)$')
+    local fp = string.match(source[1], "/([^/]+)$")
     if not fp then  utils.die(pkg, "can't parse source '"..source[1].."'") end
-    fp = string.match(fp, '(.*)[@#]') or fp -- this follows kiss, but should it be (.-) (ie. shortest match)?
-    return env.src_dir .. '/' .. pkg .. '/' .. (source[2] and source[2] .. '/' or '') .. fp .. '/'
+    fp = string.match(fp, "(.*)[@#]") or fp -- this follows kiss, but should it be (.-) (ie. shortest match)?
+    return env.src_dir .. "/" .. pkg .. "/" .. (source[2] and source[2] .. "/" or "") .. fp .. "/"
 end
 
 local function resolve_http(pkg, source, env)
     -- get file part of URL
-    local fp = string.match(source[1], '/([^/]+)$')
+    local fp = string.match(source[1], "/([^/]+)$")
     if not fp then utils.die(pkg, "can't parse source '" .. source[1] .. "'") end
-    return env.src_dir .. '/' .. pkg .. '/' .. (source[2] and source[2] .. '/' or '') .. fp
+    return env.src_dir .. "/" .. pkg .. "/" .. (source[2] and source[2] .. "/" or "") .. fp
 end
 
 local function resolve_file(pkg, source, env, repo_dir)
-    local f = repo_dir .. '/' .. source[1]
+    local f = repo_dir .. "/" .. source[1]
     if not sys_stat.stat(f) then utils.die(pkg, "source '"..source[1].."' not found") end
     return f
 end

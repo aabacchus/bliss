@@ -1,9 +1,9 @@
 -- Copyright 2023 phoebos
-local sys_stat = require 'posix.sys.stat'
-local sys_wait = require 'posix.sys.wait'
-local unistd = require 'posix.unistd'
-local stdlib = require 'posix.stdlib'
-local signal = require 'posix.signal'
+local sys_stat = require "posix.sys.stat"
+local sys_wait = require "posix.sys.wait"
+local unistd = require "posix.unistd"
+local stdlib = require "posix.stdlib"
+local signal = require "posix.signal"
 
 local colors = {"", "", ""}
 local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, mkcd, rm_rf, log, warn, die, prompt, run_shell, run, capture, shallowcopy
@@ -23,9 +23,9 @@ function setup()
         GET     = os.getenv("KISS_GET")
                     or get_available("aria2c", "axel", "curl", "wget", "wget2")
                     or warn("No download utility found (aria2c, axel, curl, wget, wget2"),
-        HOOK    = split(os.getenv("KISS_HOOK"), ':'),
+        HOOK    = split(os.getenv("KISS_HOOK"), ":"),
         KEEPLOG = os.getenv("KISS_KEEPLOG") or 0,
-        PATH    = split(os.getenv("KISS_PATH"), ':'),
+        PATH    = split(os.getenv("KISS_PATH"), ":"),
         PID     = os.getenv("KISS_PID") or unistd.getpid(),
         PROMPT  = os.getenv("KISS_PROMPT") or 1,
         ROOT    = os.getenv("KISS_ROOT") or "",
@@ -51,14 +51,14 @@ function setup()
     env.bin_dir = env.cac_dir .. "/bin"
 
     env.TMPDIR  = env.TMPDIR or (env.cac_dir .. "/proc")
-    env.proc    = env.TMPDIR .. '/' .. env.PID
+    env.proc    = env.TMPDIR .. "/" .. env.PID
 
     env.mak_dir = env.proc .. "/build"
     env.pkg_dir = env.proc .. "/pkg"
     env.tar_dir = env.proc .. "/extract"
     env.tmp_dir = env.proc .. "/tmp"
 
-    mkdirp(env.ROOT .. '/')
+    mkdirp(env.ROOT .. "/")
     mkdirp(env.src_dir, env.log_dir, env.bin_dir,
         env.mak_dir, env.pkg_dir, env.tar_dir, env.tmp_dir)
 
@@ -86,7 +86,7 @@ end
 
 function get_available(...)
     local x, res
-    for i = 1, select('#', ...) do
+    for i = 1, select("#", ...) do
         x = select(i, ...)
         res = capture("command -v " .. x)
         if res[1] then return res[1] end
@@ -128,13 +128,13 @@ function split(s, sep)
 end
 
 function mkdirp(...)
-    for i = 1, select('#', ...) do
+    for i = 1, select("#", ...) do
         local path = select(i, ...)
-        assert(string.sub(path, 1, 1) == '/')
-        local t = split(path, '/')
-        local p = ''
+        assert(string.sub(path, 1, 1) == "/")
+        local t = split(path, "/")
+        local p = ""
         for _, v in ipairs(t) do
-            p = p .. '/' .. v
+            p = p .. "/" .. v
 
             local sb = sys_stat.stat(p)
             if not sb then
@@ -160,7 +160,7 @@ function log(name, msg, category)
     io.stderr:write(string.format("%s%s %s%s%s %s\n",
         colors[1],
         category or "->",
-        colors[3] .. (msg and colors[2] or ''),
+        colors[3] .. (msg and colors[2] or ""),
         name,
         colors[3],
         msg or ""))
@@ -193,7 +193,7 @@ end
 -- path is a string, cmd is an array, env is a table
 -- Despite the variable name, path doesn't have to be absolute because execp is used.
 function run(path, cmd, env)
-    io.stderr:write(path .. ' ' .. table.concat(cmd, ' ', 1) .. '\n')
+    io.stderr:write(path .. " " .. table.concat(cmd, " ", 1) .. "\n")
 
     local pid = unistd.fork()
 
@@ -218,7 +218,7 @@ end
 
 -- Returns an array of lines printed by cmd
 function capture(cmd)
-    local p = io.popen(cmd, 'r')
+    local p = io.popen(cmd, "r")
     local res = {}
     for line in p:lines() do
         table.insert(res, line)

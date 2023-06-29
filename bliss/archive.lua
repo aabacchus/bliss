@@ -1,7 +1,7 @@
-local utils = require 'bliss.utils'
-local dirent = require 'posix.dirent'
-local stdio = require 'posix.stdio'
-local unistd = require 'posix.unistd'
+local utils = require "bliss.utils"
+local dirent = require "posix.dirent"
+local stdio = require "posix.stdio"
+local unistd = require "posix.unistd"
 
 -- extracts tarball to PWD
 local function tar_extract(tarball)
@@ -11,13 +11,13 @@ local function tar_extract(tarball)
 
     local top = dirent.dir()
     if #top > 3 then utils.die("more than 1 top-level directory in tarball " .. tarball) end
-    for _,v in ipairs(top) do if v ~= '.' and v ~= '..' then top = v break end end
+    for _,v in ipairs(top) do if v ~= "." and v ~= ".." then top = v break end end
 
     local d = dirent.dir(top)
     for _,file in ipairs(d) do
-        if file ~= '.' and file ~= '..' then
-            assert(file:sub(1,1) ~= '/')
-            local ok, e = stdio.rename(top..'/'..file, file)
+        if file ~= "." and file ~= ".." then
+            assert(file:sub(1,1) ~= "/")
+            local ok, e = stdio.rename(top.."/"..file, file)
             if not ok then
                 utils.die("couldn't rename " .. file .. ": " .. e)
             end
@@ -28,9 +28,9 @@ end
 -- p is a package table as in bliss.build
 local function tar_create(env, p)
     utils.log(p.pkg, "Creating tarball")
-    unistd.chdir(env.pkg_dir .. '/' .. p.pkg)
+    unistd.chdir(env.pkg_dir .. "/" .. p.pkg)
 
-    local _tar_file = env.bin_dir .. '/' .. p.pkg .. '@' .. p.ver .. '-' .. p.rel .. '.tar.' .. env.COMPRESS
+    local _tar_file = env.bin_dir .. "/" .. p.pkg .. "@" .. p.ver .. "-" .. p.rel .. ".tar." .. env.COMPRESS
 
     -- env.COMPRESS is definitely one of the below (checked in utils.setup)
     local compress_map = {

@@ -1,5 +1,5 @@
 #!/usr/bin/env lua
-local bliss = require 'bliss'
+local bliss = require "bliss"
 
 local function version()
     print("0.0.0")
@@ -41,7 +41,7 @@ local function args(env, arg)
     if #arg < 1 then usage() end
 
     local char = string.sub(arg[1], 1, 1)
-    if arg[1] == "upgrade" then char = 'U' end
+    if arg[1] == "upgrade" then char = "U" end
 
     -- shift
     table.remove(arg, 1)

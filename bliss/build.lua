@@ -1,10 +1,10 @@
-local utils = require 'bliss.utils'
-local archive = require 'bliss.archive'
-local pkg = require 'bliss.pkg'
-local download = require 'bliss.download'
-local checksum = require 'bliss.checksum'
-local glob = require 'posix.glob'
-local libgen = require 'posix.libgen'
+local utils = require "bliss.utils"
+local archive = require "bliss.archive"
+local pkg = require "bliss.pkg"
+local download = require "bliss.download"
+local checksum = require "bliss.checksum"
+local glob = require "posix.glob"
+local libgen = require "posix.libgen"
 
 --[[
 -- These functions use a table containing cached package variables:
@@ -23,7 +23,7 @@ local function build_extract(env, p)
     utils.log(p.pkg, "Extracting sources")
 
     for k,v in ipairs(p.caches) do
-        utils.mkcd(env.mak_dir..'/'..p.pkg..'/'..(p.sources[k][2] or ''))
+        utils.mkcd(env.mak_dir.."/"..p.pkg.."/"..(p.sources[k][2] or ""))
         local r = p.sources[k][1]
         if r:match("^git%+") then
             utils.run("cp", {"-PRf", v.."/.", "."})
@@ -40,13 +40,13 @@ local function build_extract(env, p)
 end
 
 local function build_build(env, p)
-    local destdir = env.pkg_dir .. '/' .. p.pkg
-    utils.mkcd(env.mak_dir..'/'..p.pkg, destdir..'/'..env.pkg_db)
+    local destdir = env.pkg_dir .. "/" .. p.pkg
+    utils.mkcd(env.mak_dir.."/"..p.pkg, destdir.."/"..env.pkg_db)
     utils.log(p.pkg, "Starting build")
 
     -- TODO: tee log
 
-    local f = p.repo_dir .. '/build'
+    local f = p.repo_dir .. "/build"
     -- TODO: env
     if not utils.run(f, {destdir, p.ver}) then
         utils.die(p.pkg, "Build failed")
@@ -69,10 +69,10 @@ local function gen_manifest(env, p)
         local t = glob.glob(dir, glob.GLOB_MARK)
 
         for _,v in ipairs(t) do
-            if libgen.basename(v) ~= 'charset.alias' and v:sub(-3) ~= '.la' then
+            if libgen.basename(v) ~= "charset.alias" and v:sub(-3) ~= ".la" then
                 table.insert(mani, v)
-                if v:sub(-1) == '/' then
-                    local m = recurse_find(v .. '*')
+                if v:sub(-1) == "/" then
+                    local m = recurse_find(v .. "*")
 
                     -- join this result to mani.
                     for i=1,#m do
@@ -85,10 +85,10 @@ local function gen_manifest(env, p)
         return mani
     end
 
-    local destdir = env.pkg_dir .. '/' .. p.pkg
-    local manifest_file = destdir .. '/' .. env.pkg_db .. '/' .. p.pkg .. '/manifest'
+    local destdir = env.pkg_dir .. "/" .. p.pkg
+    local manifest_file = destdir .. "/" .. env.pkg_db .. "/" .. p.pkg .. "/manifest"
 
-    local mani = recurse_find(destdir .. '/*')
+    local mani = recurse_find(destdir .. "/*")
 
     table.insert(mani, manifest_file)
     -- TODO: etcsums
@@ -97,11 +97,11 @@ local function gen_manifest(env, p)
     table.sort(mani, function (a,b) return b < a end)
 
     -- Remove the prefix from each line and write to the manifest file.
-    local f = io.open(manifest_file, 'w')
+    local f = io.open(manifest_file, "w")
     local prefix_len = string.len(destdir)
 
     for _,v in ipairs(mani) do
-        f:write(v:sub(prefix_len + 1) .. '\n')
+        f:write(v:sub(prefix_len + 1) .. "\n")
     end
 
     f:close()

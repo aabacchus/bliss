@@ -5,7 +5,7 @@ bliss/ contains the library, main.lua provides an interface to the library.
 The library is split into multiple files, but bliss/init.lua collects them all
 together so that the whole library is loaded if you run:
 
-    local bliss = require 'bliss'
+    local bliss = require "bliss"
 
 Most of the library functions are put directly into the bliss table (eg bliss.setup)
 but some are put into a subtable:
@@ -44,8 +44,8 @@ MISC
 
 If writing a library using bliss, you may prefer to require each submodule individually, like this:
 
-    local pkg = require 'bliss.pkg'
-    local utils = require 'bliss.utils'
+    local pkg = require "bliss.pkg"
+    local utils = require "bliss.utils"
 
     utils.setup()
     ...

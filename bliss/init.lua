@@ -1,20 +1,20 @@
-local cwd = (...):gsub('%.init$', '')
+local cwd = (...):gsub("%.init$", "")
 
 local M = {}
 
 -- merge these into the toplevel bliss module
-local names = {'utils', 'search', 'list', 'pkg', 'download', 'checksum', 'build'}
+local names = {"utils", "search", "list", "pkg", "download", "checksum", "build"}
 for _, name in ipairs(names) do
-    local t = require(cwd .. '.' .. name)
+    local t = require(cwd .. "." .. name)
     for k, v in pairs(t) do
         M[k] = v
     end
 end
 
 -- add these into submodules
-names = {'b3sum'}
+names = {"b3sum"}
 for _, name in ipairs(names) do
-    M[name] = require(cwd .. '.' .. name)
+    M[name] = require(cwd .. "." .. name)
 end
 
 return M
