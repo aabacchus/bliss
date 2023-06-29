@@ -85,22 +85,21 @@ local function resolve(pkg, sources, env, repo_dir)
     return caches
 end
 
-local function recurse_all_deps(env, pkgs)
-    local deps = {}
+local function recurse_all_deps(env, pkgs, deps)
     for _, p in ipairs(pkgs) do
-        local d  = find_depends(p, env.PATH)
-        local d_ = {}
-        for _,v in ipairs(d) do
-            table.insert(d_, v[1])
-        end
+        if not deps[p] then
+            local d = find_depends(p, env.PATH)
+            -- ignore make, just get pkg names
+            local d_ = {}
+            for _,v in ipairs(d) do
+                table.insert(d_, v[1])
+            end
 
-        -- recurse
-        local d__ = recurse_all_deps(env, d_)
-        for _,w in ipairs(d__) do
-            table.insert(deps, w)
-        end
+            -- recurse
+            deps = recurse_all_deps(env, d_, deps)
 
-        table.insert(deps, {p, d_})
+            deps[p] = d_
+        end
     end
     return deps
 end
@@ -108,9 +107,9 @@ end
 local function order(env, pkgs)
     local t = tsort.new()
 
-    local deps = recurse_all_deps(env, pkgs)
-    for _,v in ipairs(deps) do
-        t:add(v[1], v[2])
+    local deps = recurse_all_deps(env, pkgs, {})
+    for k,v in pairs(deps) do
+        t:add(k, v)
     end
 
     local s, x,y = t:sort()
