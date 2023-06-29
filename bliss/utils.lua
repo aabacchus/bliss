@@ -172,7 +172,7 @@ end
 
 function die(name, msg)
     log(name, msg, "ERROR")
-    print(debug.traceback())
+    print(debug.traceback(nil, 2))
     os.exit(false)
 end
 
