@@ -1,10 +1,12 @@
 -- Copyright 2023 phoebos
 local sys_stat = require 'posix.sys.stat'
+local sys_wait = require 'posix.sys.wait'
 local unistd = require 'posix.unistd'
+local stdlib = require 'posix.stdlib'
 local signal = require 'posix.signal'
 
 local colors = {"", "", ""}
-local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, mkcd, rm_rf, log, warn, die, prompt, run, capture, shallowcopy
+local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, mkcd, rm_rf, log, warn, die, prompt, run_shell, run, capture, shallowcopy
 
 function setup()
     colors = setup_colors()
@@ -182,10 +184,36 @@ function prompt(env, msg)
     end
 end
 
-function run(cmd)
+-- cmd is a string.
+function run_shell(cmd)
     io.stderr:write(cmd.."\n")
-    -- faster to use fork + posix.unistd.execp?
     return os.execute(cmd)
+end
+
+-- path is a string, cmd is an array, env is a table
+-- Despite the variable name, path doesn't have to be absolute because execp is used.
+function run(path, cmd, env)
+    io.stderr:write(path .. ' ' .. table.concat(cmd, ' ', 1) .. '\n')
+
+    local pid = unistd.fork()
+
+    if not pid then
+        die("fork failed")
+    elseif pid == 0 then
+        if env then
+            for k,v in pairs(env) do
+                stdlib.setenv(k, v)
+            end
+        end
+
+        unistd.execp(path, cmd)
+    else
+        local _, msg, code = sys_wait.wait(pid)
+        if msg ~= "exited" then
+            die("run failed: " .. msg)
+        end
+        return code == 0
+    end
 end
 
 -- Returns an array of lines printed by cmd
@@ -216,6 +244,7 @@ local M = {
     warn        = warn,
     die         = die,
     prompt      = prompt,
+    run_shell   = run_shell,
     run         = run,
     capture     = capture,
     shallowcopy = shallowcopy,

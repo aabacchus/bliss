@@ -15,17 +15,18 @@ local function http(env, p, source, dest)
         -- TODO: use a library?
         if not env.GET then utils.die("No http download utility available") end
         local args_map = {
-            aria2c = ' -d / -o ',
-            axel = ' -o ',
-            curl = ' -fLo ',
-            wget = ' -O ',
-            wget2 = ' -O ',
+            aria2c = {'-d', '/', '-o'},
+            axel = {'-o'},
+            curl = {'-fLo'},
+            wget = {'-O'},
+            wget2 = {'-O'},
         }
         local args = args_map[libgen.basename(env.GET)] or utils.die("'"..env.GET.."' is unsupported as KISS_GET")
 
         --TODO: tmp file
-        local cmd = env.GET .. args .. dest .. ' ' .. source
-        if not utils.run(cmd) then
+        table.insert(args, dest)
+        table.insert(args, source)
+        if not utils.run(env.GET, args) then
             utils.die(p, "Failed to download " .. source)
         end
     end

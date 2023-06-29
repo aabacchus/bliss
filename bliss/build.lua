@@ -26,7 +26,7 @@ local function build_extract(env, p)
         utils.mkcd(env.mak_dir..'/'..p.pkg..'/'..(p.sources[k][2] or ''))
         local r = p.sources[k][1]
         if r:match("^git%+") then
-            utils.run("cp -PRf '" .. v .. "/.' .")
+            utils.run("cp", {"-PRf", v.."/.", "."})
         elseif r:match("%.tar$")
             or r:match("%.tar%...$")
             or r:match("%.tar%....$")
@@ -34,25 +34,26 @@ local function build_extract(env, p)
             or r:match("%.t.z") then
             archive.tar_extract(v)
         else
-            utils.run("cp -PRf '" .. v .. "' .")
+            utils.run("cp", {"-PRf", v, "."})
         end
     end
 end
 
 local function build_build(env, p)
-    utils.mkcd(env.mak_dir..'/'..p.pkg, env.pkg_dir..'/'..p.pkg..'/'..env.pkg_db)
+    local destdir = env.pkg_dir .. '/' .. p.pkg
+    utils.mkcd(env.mak_dir..'/'..p.pkg, destdir..'/'..env.pkg_db)
     utils.log(p.pkg, "Starting build")
 
     -- TODO: tee log
 
     local f = p.repo_dir .. '/build'
-    -- TODO: env (execp?)
-    if not utils.run(f .. " " ..env.pkg_dir..'/'..p.pkg .. " " .. p.ver) then
+    -- TODO: env
+    if not utils.run(f, {destdir, p.ver}) then
         utils.die(p.pkg, "Build failed")
     end
 
     -- copy repository files to the package directory.
-    if not utils.run("cp -LRf \"" .. p.repo_dir .. "\" \"" .. env.pkg_dir .. "/" .. p.pkg .. "/" .. env.pkg_db .. "/\"") then os.exit(false) end
+    if not utils.run("cp", {"-LRf", p.repo_dir, destdir .. "/" .. env.pkg_db .. "/"}) then os.exit(false) end
 
     utils.log(p.pkg, "Successfully built package")
 end

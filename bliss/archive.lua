@@ -5,7 +5,7 @@ local unistd = require 'posix.unistd'
 
 -- extracts tarball to PWD
 local function tar_extract(tarball)
-    if not utils.run("tar xf '" .. tarball .. "'") then
+    if not utils.run("tar", {"xf", tarball}) then
         utils.die("failed to extract "..tarball)
     end
 
@@ -41,7 +41,7 @@ local function tar_create(env, p)
         xz   = "xz -z",
         zst  = "zstd -z",
     }
-    if not utils.run("tar cf - . | " .. compress_map[env.COMPRESS] .. " > " .. _tar_file) then os.exit(false) end
+    if not utils.run_shell("tar cf - . | " .. compress_map[env.COMPRESS] .. " > " .. _tar_file) then os.exit(false) end
 
     -- TODO: cd $OLDPWD?
 
