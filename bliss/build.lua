@@ -5,6 +5,7 @@ local download = require "bliss.download"
 local checksum = require "bliss.checksum"
 local glob = require "posix.glob"
 local libgen = require "posix.libgen"
+local unistd = require "posix.unistd"
 
 --[[
 -- These functions use a table containing cached package variables:
@@ -46,9 +47,18 @@ local function build_build(env, p)
 
     -- TODO: tee log
 
+    local build_env = {
+        AR = os.getenv("AR") or "ar",
+        CC = os.getenv("CC") or "cc",
+        CXX = os.getenv("CXX") or "c++",
+        NM = os.getenv("NM") or "nm",
+        RANLIB = os.getenv("RANLIB") or "ranlib",
+        RUSTFLAGS = "--remap-path-prefix="..unistd.getcwd().."=. "..(os.getenv("RUSTFLAGS") or ""),
+        GOFLAGS = "-trimpath -modcacherw " .. (os.getenv("GOFLAGS") or ""),
+        GOPATH = unistd.getcwd() .. "/go",
+    }
     local f = p.repo_dir .. "/build"
-    -- TODO: env
-    if not utils.run(f, {destdir, p.ver}) then
+    if not utils.run(f, {destdir, p.ver}, build_env) then
         utils.die(p.pkg, "Build failed")
     end
 
