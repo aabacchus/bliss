@@ -120,12 +120,38 @@ end
 local function build(env, arg)
     if #arg == 0 then end -- TODO
 
+    local explicit = {}
+    for _,p in ipairs(arg) do explicit[p] = true end
+
     local db = {}
 
-    -- TODO: depends, order, check cache
+    -- TODO: check cache
+    local deps = pkg.order(env, arg)
+    local deps_filtered = {}
 
-    -- First, download and verify sources
-    for _,p in ipairs(arg) do
+    -- Filter out implicit deps if they are already installed
+    for _,p in ipairs(deps) do
+        if explicit[p] or not pkg.isinstalled(env, p) then
+            table.insert(deps_filtered, p)
+        end
+    end
+
+    deps = deps_filtered
+
+    local msg_explicit = ""
+    local msg_implicit = ""
+    for _,p in ipairs(deps) do
+        if explicit[p] then
+            msg_explicit = msg_explicit .. " " .. p
+        else
+            msg_implicit = msg_implicit .. " " .. p
+        end
+    end
+    utils.log("Building: explicit:" .. msg_explicit .. (#msg_implicit > 0 and (", implicit:" .. msg_implicit) or ""))
+    -- TODO: prompt
+
+    -- Download and verify sources
+    for _,p in ipairs(deps) do
         -- append sys_db
         local path = utils.shallowcopy(env.PATH)
         table.insert(path, env.sys_db)
@@ -142,12 +168,19 @@ local function build(env, arg)
     end
 
     -- Now build
-    for _,p in ipairs(db) do
+    for index, p in ipairs(db) do
+        utils.log(p.pkg, "Building package ("..index.."/"..#db..")")
+
         build_extract(env, p)
         build_build(env, p)
 
         gen_manifest(env, p)
         archive.tar_create(env, p)
+
+        if not explicit[p.pkg] then
+            -- TODO: needed; install
+            utils.log(p.pkg, "Needed as a dependency or has an update, installing (TODO)")
+        end
     end
 end
 
