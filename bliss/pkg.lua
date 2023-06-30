@@ -26,6 +26,11 @@ local function find(name, path)
     utils.die("'"..name.."' not found")
 end
 
+local function isinstalled(env, name)
+    local sb = sys_stat.stat(env.sys_db .. "/" .. name)
+    return not not sb
+end
+
 local function find_version(pkg, repo_dir)
     local v = repo_dir .. "/version"
 
@@ -131,6 +136,7 @@ end
 
 local M = {
     find = find,
+    isinstalled = isinstalled,
     find_version = find_version,
     find_checksums = find_checksums,
     find_depends = find_depends,
