@@ -1,4 +1,5 @@
 local utils = require "bliss.utils"
+local tsort = require "bliss.tsort"
 local sys_stat = require "posix.sys.stat"
 
 local function read_lines(file)
@@ -6,7 +7,9 @@ local function read_lines(file)
     local f = io.open(file)
     if not f then return {} end
     for line in f:lines() do
-        table.insert(t, utils.split(line, " "))
+        if #line ~= 0 and string.sub(line, 1, 1) ~= '#' then
+            table.insert(t, utils.split(line, " "))
+        end
     end
     f:close()
     return t
@@ -34,6 +37,11 @@ end
 
 local function find_checksums(pkg, repo_dir)
     local p = repo_dir .. "/checksums"
+    return read_lines(p)
+end
+
+local function find_depends(pkg, path)
+    local p = find(pkg, path) .. "/depends"
     return read_lines(p)
 end
 
@@ -81,11 +89,53 @@ local function resolve(pkg, sources, env, repo_dir)
     return caches
 end
 
+local function recurse_all_deps(env, pkgs, deps)
+    for _, p in ipairs(pkgs) do
+        if not deps[p] then
+            local d = find_depends(p, env.PATH)
+            -- ignore make, just get pkg names
+            local d_ = {}
+            for _,v in ipairs(d) do
+                table.insert(d_, v[1])
+            end
+
+            -- recurse
+            deps = recurse_all_deps(env, d_, deps)
+
+            deps[p] = d_
+        end
+    end
+    return deps
+end
+
+local function order(env, pkgs)
+    local t = tsort.new()
+
+    local deps = recurse_all_deps(env, pkgs, {})
+    for k,v in pairs(deps) do
+        t:add(k, v)
+    end
+
+    local s, x,y = t:sort()
+    if not s then
+        utils.die("Circular dependency detected: " .. x .. " <> " .. y)
+    end
+
+    -- return s reversed (in order to be built)
+    local r = {}
+    for i = #s, 1, -1 do
+        r[i] = s[i]
+    end
+    return r
+end
+
 local M = {
     find = find,
     find_version = find_version,
     find_checksums = find_checksums,
+    find_depends = find_depends,
     find_sources = find_sources,
     resolve = resolve,
+    order = order,
 }
 return M
