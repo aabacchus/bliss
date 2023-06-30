@@ -47,6 +47,8 @@ local function checksum(env, arg)
 end
 
 local function verify_checksums(p, repo_dir, caches)
+    utils.log(p, "Verifying sources")
+
     local sums = pkg.find_checksums(p, repo_dir)
     for i,v in ipairs(caches) do
         local sum = checksum_file(v)
