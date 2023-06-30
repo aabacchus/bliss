@@ -150,12 +150,12 @@ local function build(env, arg)
     utils.log("Building: explicit:" .. msg_explicit .. (#msg_implicit > 0 and (", implicit:" .. msg_implicit) or ""))
     -- TODO: prompt
 
+    -- append sys_db
+    local path = utils.shallowcopy(env.PATH)
+    table.insert(path, env.sys_db)
+
     -- Download and verify sources
     for _,p in ipairs(deps) do
-        -- append sys_db
-        local path = utils.shallowcopy(env.PATH)
-        table.insert(path, env.sys_db)
-
         local repo_dir = pkg.find(p, path)
         local sources = pkg.find_sources(p, repo_dir)
         local version = pkg.find_version(p, repo_dir)
