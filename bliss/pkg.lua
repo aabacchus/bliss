@@ -7,7 +7,7 @@ local function read_lines(file)
     local f = io.open(file)
     if not f then return {} end
     for line in f:lines() do
-        if #line ~= 0 and string.sub(line, 1, 1) ~= '#' then
+        if #line ~= 0 and string.sub(line, 1, 1) ~= "#" then
             table.insert(t, utils.split(line, " "))
         end
     end
