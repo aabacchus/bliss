@@ -40,8 +40,8 @@ local function find_checksums(pkg, repo_dir)
     return read_lines(p)
 end
 
-local function find_depends(pkg, path)
-    local p = find(pkg, path) .. "/depends"
+local function find_depends(pkg, repo_dir)
+    local p = repo_dir .. "/depends"
     return read_lines(p)
 end
 
@@ -92,7 +92,7 @@ end
 local function recurse_all_deps(env, pkgs, deps)
     for _, p in ipairs(pkgs) do
         if not deps[p] then
-            local d = find_depends(p, env.PATH)
+            local d = find_depends(p, find(p, env.PATH))
             -- ignore make, just get pkg names
             local d_ = {}
             for _,v in ipairs(d) do
