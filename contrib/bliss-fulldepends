@@ -1,0 +1,31 @@
+#!/usr/bin/env lua
+-- Display all dependencies of packages (recursively)
+local bliss = require "bliss"
+local dirent = require "posix.dirent"
+
+local function lists(env, arg)
+    if #arg == 0 then
+        for file in dirent.files(env.sys_db) do
+            if string.sub(file, 1, 1) ~= "." then
+                table.insert(arg, {file, #bliss.order(env, {file})})
+            end
+        end
+        table.sort(arg, function (a,b) return a[2]<b[2] end)
+        for _,v in ipairs(arg) do print(v[1],v[2]) end
+    else
+        local deps = bliss.order(env, {arg[1]})
+        for _,v in ipairs(deps) do print(v) end
+    end
+end
+
+if arg[1] == "-h" then
+    print("usage: "..arg[0].." [pkg]")
+    print("  With no args, list installed packages by total number of dependencies")
+    print("  With an arg, list full dependencies of pkg")
+    os.exit()
+end
+
+local env, atexit = bliss.setup()
+table.insert(env.PATH, 1, env.sys_db)
+
+lists(env, arg)
