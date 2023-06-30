@@ -51,6 +51,8 @@ local function find_depends(pkg, repo_dir)
 end
 
 local function find_sources(pkg, repo_dir)
+    utils.log(pkg, "Reading sources")
+
     local p = repo_dir .. "/sources"
 
     local s = read_lines(p)
