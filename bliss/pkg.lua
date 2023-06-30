@@ -124,7 +124,7 @@ local function order(env, pkgs)
     -- return s reversed (in order to be built)
     local r = {}
     for i = #s, 1, -1 do
-        r[i] = s[i]
+        table.insert(r, s[i])
     end
     return r
 end
