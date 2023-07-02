@@ -125,11 +125,11 @@ local function build(env, arg)
 
     local db = {}
 
-    -- TODO: check cache
     local deps = pkg.order(env, arg)
     local deps_filtered = {}
 
     -- Filter out implicit deps if they are already installed
+    -- TODO: pass a flag to pkg.order to filter out installed deps there?
     for _,p in ipairs(deps) do
         if explicit[p] or not pkg.isinstalled(env, p) then
             table.insert(deps_filtered, p)
@@ -156,6 +156,8 @@ local function build(env, arg)
 
     -- Download and verify sources
     for _,p in ipairs(deps) do
+        -- TODO: check cache
+
         local repo_dir = pkg.find(p, path)
         local sources = pkg.find_sources(p, repo_dir)
         local version = pkg.find_version(p, repo_dir)
