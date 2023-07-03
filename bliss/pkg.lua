@@ -131,6 +131,7 @@ local function recurse_all_deps(env, pkgs, deps)
 end
 
 local function order(env, pkgs)
+    -- use tsort(1) instead?
     local t = tsort.new()
 
     local deps = recurse_all_deps(env, pkgs, {})
