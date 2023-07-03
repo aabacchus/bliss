@@ -45,7 +45,7 @@ local function build_build(env, p)
     utils.mkcd(env.mak_dir.."/"..p.pkg, destdir.."/"..env.pkg_db)
     utils.log(p.pkg, "Starting build")
 
-    -- TODO: tee log
+    local logfile = env.log_dir .. "/" .. p.pkg .. "-" .. env.time .. "-" .. env.PID
 
     local build_env = {
         AR = os.getenv("AR") or "ar",
@@ -57,9 +57,17 @@ local function build_build(env, p)
         GOFLAGS = "-trimpath -modcacherw " .. (os.getenv("GOFLAGS") or ""),
         GOPATH = unistd.getcwd() .. "/go",
     }
-    local f = p.repo_dir .. "/build"
-    if not utils.run(f, {destdir, p.ver}, build_env) then
-        utils.die(p.pkg, "Build failed")
+
+    local buildfile = p.repo_dir .. "/build"
+
+    if not utils.run(buildfile, {destdir, p.ver}, build_env, logfile) then
+        utils.log(p.pkg, "Build failed")
+        utils.log(p.pkg, "Log stored to " .. logfile)
+        os.exit(false)
+    end
+
+    if env.KEEPLOG ~= 1 then
+        unistd.unlink(logfile)
     end
 
     -- copy repository files to the package directory.
