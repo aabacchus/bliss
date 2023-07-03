@@ -148,7 +148,7 @@ local function build(env, arg)
         end
     end
     utils.log("Building: explicit:" .. msg_explicit .. (#msg_implicit > 0 and (", implicit:" .. msg_implicit) or ""))
-    -- TODO: prompt
+    if #msg_implicit > 0 then utils.prompt(env) end
 
     -- append sys_db
     local path = utils.shallowcopy(env.PATH)
