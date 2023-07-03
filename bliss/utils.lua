@@ -130,6 +130,14 @@ end
 function mkdirp(...)
     for i = 1, select("#", ...) do
         local path = select(i, ...)
+        local sb = sys_stat.stat(path)
+        if sb then
+            if sys_stat.S_ISDIR(sb.st_mode) == 0 then
+                die("'" .. path .. "' already exists and is not a directory")
+            end
+            goto continue
+        end
+
         assert(string.sub(path, 1, 1) == "/")
         local t = split(path, "/")
         local p = ""
@@ -143,6 +151,7 @@ function mkdirp(...)
             end
         end
     end
+    ::continue::
 end
 
 function mkcd(...)
