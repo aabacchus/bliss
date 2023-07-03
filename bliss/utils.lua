@@ -192,14 +192,36 @@ end
 
 -- path is a string, cmd is an array, env is a table
 -- Despite the variable name, path doesn't have to be absolute because execp is used.
-function run(path, cmd, env)
+-- If logfile is provided, the output of cmd is copied to a file of that name.
+function run(path, cmd, env, logfile)
     io.stderr:write(path .. " " .. table.concat(cmd, " ", 1) .. "\n")
+
+    local f,r,w
+    if logfile then
+        local err
+        f,err = io.open(logfile, "w")
+        if not f then
+            die("could not create " .. err)
+        end
+
+        r,w = unistd.pipe()
+        if not r then
+            die("could not pipe: " .. w)
+        end
+    end
 
     local pid = unistd.fork()
 
     if not pid then
         die("fork failed")
     elseif pid == 0 then
+        if logfile then
+            unistd.close(r)
+            unistd.dup2(w, unistd.STDOUT_FILENO)
+            unistd.dup2(w, unistd.STDERR_FILENO)
+            unistd.close(w)
+        end
+
         if env then
             for k,v in pairs(env) do
                 stdlib.setenv(k, v)
@@ -208,6 +230,21 @@ function run(path, cmd, env)
 
         unistd.execp(path, cmd)
     else
+        if logfile then
+            unistd.close(w)
+            while true do
+                local out = unistd.read(r, 1024)
+                if not out or #out == 0 then break end
+
+                io.write(out)
+                if logfile then
+                    f:write(out)
+                end
+            end
+            unistd.close(r)
+            f:close()
+        end
+
         local _, msg, code = sys_wait.wait(pid)
         if msg ~= "exited" then
             die("run failed: " .. msg)
