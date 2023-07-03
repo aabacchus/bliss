@@ -164,11 +164,17 @@ local function build(env, arg)
 
     -- Download and verify sources
     for _,p in ipairs(deps) do
-        -- TODO: check cache
 
         local repo_dir = pkg.find(p, path)
-        local sources = pkg.find_sources(p, repo_dir)
         local version = pkg.find_version(p, repo_dir)
+
+        -- Check for pre-built dependencies
+        if not explicit[p] and pkg.iscached(env, p, version) then
+            utils.log(p, "Found pre-built binary (TODO)")
+            -- TODO: force install
+        end
+
+        local sources = pkg.find_sources(p, repo_dir)
         local caches = pkg.resolve(p, sources, env, repo_dir)
 
         download.download_sources(env, p, sources, caches)
@@ -188,7 +194,7 @@ local function build(env, arg)
         archive.tar_create(env, p)
 
         if not explicit[p.pkg] then
-            -- TODO: needed; install
+            -- TODO: force install
             utils.log(p.pkg, "Needed as a dependency or has an update, installing (TODO)")
         end
     end
