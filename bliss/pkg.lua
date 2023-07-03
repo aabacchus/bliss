@@ -152,6 +152,7 @@ local function order(env, pkgs)
 end
 
 local M = {
+    read_lines = read_lines,
     find = find,
     isinstalled = isinstalled,
     iscached = iscached,
