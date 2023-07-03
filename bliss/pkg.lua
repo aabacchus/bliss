@@ -1,5 +1,6 @@
 local utils = require "bliss.utils"
 local tsort = require "bliss.tsort"
+local glob = require "posix.glob"
 local sys_stat = require "posix.sys.stat"
 
 local function read_lines(file)
@@ -29,6 +30,20 @@ end
 local function isinstalled(env, name)
     local sb = sys_stat.stat(env.sys_db .. "/" .. name)
     return not not sb
+end
+
+local function iscached(env, pkg, version)
+    local f = env.bin_dir .. "/" .. pkg .. "@" .. version[1] .. "-" .. version[2] .. ".tar."
+    local myglob = f .. "*"
+    local f = f .. env.COMPRESS
+
+    local sb = sys_stat.stat(f)
+    if sb then
+        return true
+    else
+        local g = glob.glob(myglob, 0)
+        return not not g
+    end
 end
 
 local function find_version(pkg, repo_dir)
@@ -139,6 +154,7 @@ end
 local M = {
     find = find,
     isinstalled = isinstalled,
+    iscached = iscached,
     find_version = find_version,
     find_checksums = find_checksums,
     find_depends = find_depends,
