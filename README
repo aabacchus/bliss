@@ -4,7 +4,7 @@ BLISS
 An implementation of the kiss package manager in Lua.
 
 [ ] alternatives
-[ ] build
+[x] build
 [ ] hooks
 [x] checksum
 [x] download

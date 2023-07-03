@@ -5,6 +5,7 @@ local download = require "bliss.download"
 local checksum = require "bliss.checksum"
 local glob = require "posix.glob"
 local libgen = require "posix.libgen"
+local sys_stat = require "posix.sys.stat"
 local unistd = require "posix.unistd"
 
 --[[
@@ -109,7 +110,9 @@ local function gen_manifest(env, p)
     local mani = recurse_find(destdir .. "/*")
 
     table.insert(mani, manifest_file)
-    -- TODO: etcsums
+    if sys_stat.stat(destdir .. "/etc") then
+        table.insert(mani, destdir .. "/" .. env.pkg_db .. "/" .. p.pkg .. "/etcsums")
+    end
 
     -- Sort in reverse.
     table.sort(mani, function (a,b) return b < a end)
@@ -123,6 +126,32 @@ local function gen_manifest(env, p)
     end
 
     f:close()
+end
+
+local function gen_etcsums(env, p)
+    local destdir = env.pkg_dir .. "/" .. p.pkg
+    if not sys_stat.stat(destdir .. "/etc") then return end
+
+    utils.log(p.pkg, "Generating etcsums")
+
+    local db = destdir .. "/" .. env.pkg_db .. "/" .. p.pkg
+    local etcsums = assert(io.open(db .. "/etcsums", "w"))
+    local lines = pkg.read_lines(db .. "/manifest")
+    for _, line in ipairs(lines) do
+        -- beware that read_lines splits lines by spaces
+        line = line[1]
+        if string.sub(line, 1, 5) == "/etc/" and string.sub(line, -1) ~= "/" then
+            local f = destdir .. line
+            local sb = sys_stat.stat(f)
+            if sys_stat.S_ISLNK(sb.st_mode) ~= 0 then
+                f = "/dev/null"
+            end
+
+            local hash = checksum.checksum_file(f)
+            etcsums:write(hash .. "\n")
+        end
+    end
+    etcsums:close()
 end
 
 local function build(env, arg)
@@ -190,7 +219,9 @@ local function build(env, arg)
         build_extract(env, p)
         build_build(env, p)
 
+        -- TODO: strip? fix_deps?
         gen_manifest(env, p)
+        gen_etcsums(env, p)
         archive.tar_create(env, p)
 
         if not explicit[p.pkg] then
