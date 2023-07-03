@@ -18,16 +18,16 @@ function setup()
                     or get_available("openssl", "sha256sum", "sha256", "shasum", "digest")
                     or warn("No sha256 utility found"),
         COMPRESS= os.getenv("KISS_COMPRESS") or "gz",
-        DEBUG   = os.getenv("KISS_DEBUG") or 0,
-        FORCE   = os.getenv("KISS_FORCE") or 0,
+        DEBUG   = tonumber(os.getenv("KISS_DEBUG")) or 0,
+        FORCE   = tonumber(os.getenv("KISS_FORCE")) or 0,
         GET     = os.getenv("KISS_GET")
                     or get_available("aria2c", "axel", "curl", "wget", "wget2")
                     or warn("No download utility found (aria2c, axel, curl, wget, wget2"),
         HOOK    = split(os.getenv("KISS_HOOK"), ":"),
-        KEEPLOG = os.getenv("KISS_KEEPLOG") or 0,
+        KEEPLOG = tonumber(os.getenv("KISS_KEEPLOG")) or 0,
         PATH    = split(os.getenv("KISS_PATH"), ":"),
         PID     = os.getenv("KISS_PID") or unistd.getpid(),
-        PROMPT  = os.getenv("KISS_PROMPT") or 1,
+        PROMPT  = tonumber(os.getenv("KISS_PROMPT")) or 1,
         ROOT    = os.getenv("KISS_ROOT") or "",
         SU      = os.getenv("KISS_SU") or get_available("ssu", "sudo", "doas", "su"),
         TMPDIR  = os.getenv("KISS_TMPDIR"),
