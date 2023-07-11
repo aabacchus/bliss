@@ -150,8 +150,8 @@ function mkdirp(...)
                 if not c then die("mkdir " .. msg) end
             end
         end
+        ::continue::
     end
-    ::continue::
 end
 
 function mkcd(...)
