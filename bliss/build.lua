@@ -85,7 +85,7 @@ local function gen_manifest(env, p)
         local mani = {}
 
         -- Make use of GLOB_MARK to append a slash to directories for us.
-        local t = glob.glob(dir, glob.GLOB_MARK)
+        local t = glob.glob(dir, glob.GLOB_MARK) or {}
 
         for _,v in ipairs(t) do
             if libgen.basename(v) ~= "charset.alias" and v:sub(-3) ~= ".la" then
