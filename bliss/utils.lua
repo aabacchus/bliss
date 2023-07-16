@@ -115,7 +115,7 @@ function trap_on(env)
 end
 
 function trap_off(env)
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
     setmetatable(env.atexit, {})
 end
 
