@@ -18,9 +18,9 @@ OVERVIEW
 
 Setup the environment (colors, read KISS_* variables):
 
-    local env, atexit = bliss.setup()
+    local env = bliss.setup()
 
-atexit must be kept in scope until the end of the program because it implements
+env must be kept in scope until the end of the program because env.atexit implements
 an EXIT handler by means of a finalizer (__gc). Beware that os.exit has been
 monkey-patched so that the Lua state is properly closed by default.
 

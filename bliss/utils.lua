@@ -66,8 +66,8 @@ function setup()
     local o = os.exit
     os.exit = function(code, close) o(code, not close) end
 
-    local atexit = trap_on(env)
-    return env, atexit
+    trap_on(env)
+    return env
 end
 
 function setup_colors()
@@ -110,13 +110,13 @@ function trap_on(env)
     signal.signal(signal.SIGINT, function () os.exit(false) end)
     -- use a finalizer to get pkg_clean to run on EXIT. A reference to atexit must
     -- be kept for the whole duration of the program (should it be a global?)
-    local atexit = setmetatable({}, {__gc = get_pkg_clean(env)})
-    return atexit
+    env.atexit = setmetatable({}, {__gc = get_pkg_clean(env)})
+    return env.atexit
 end
 
-function trap_off(atexit)
+function trap_off(env)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    setmetatable(atexit, {})
+    setmetatable(env.atexit, {})
 end
 
 function split(s, sep)
