@@ -1,0 +1,26 @@
+#!/usr/bin/env lua
+-- This is a tsort(1) interface to the library.
+local tsort = require "bliss.tsort"
+local utils = require "bliss.utils"
+
+local t = tsort.new()
+local deps = {}
+
+for line in io.stdin:lines() do
+    local l = utils.split(line, " ")
+    deps[l[1]] = deps[l[1]] or {}
+    table.insert(deps[l[1]], l[2])
+end
+
+for k,v in pairs(deps) do
+    t:add(k, v)
+end
+
+local s, x,y = t:sort()
+if not s then
+    utils.die("Circular dependency detected: " .. x .. " <> " .. y)
+end
+
+for _, v in ipairs(s) do
+    print(v)
+end
