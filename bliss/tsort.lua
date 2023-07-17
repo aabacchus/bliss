@@ -30,6 +30,8 @@ function tsort.new()
     return setmetatable({nodes={}}, {__index = tsort})
 end
 
+-- deps is an array of ALL the deps for node. Calling add for the same node a
+-- second time overwrites, not appends.
 function tsort:add(node, deps)
     self.nodes[node] = deps
 end
