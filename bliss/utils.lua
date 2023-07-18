@@ -8,7 +8,7 @@ local stdlib = require "posix.stdlib"
 local signal = require "posix.signal"
 
 local colors = {"", "", ""}
-local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, mkcd, rm_rf, log, warn, die, prompt, run_shell, run, capture, shallowcopy, am_not_owner, as_user
+local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, mkcd, rm_rf, log, warn, die, prompt, run_shell, run, run_quiet, capture, shallowcopy, am_not_owner, as_user
 
 function setup()
     colors = setup_colors()
@@ -210,7 +210,9 @@ end
 -- If logfile is provided, the output of cmd is copied to a file of that name.
 function run(path, cmd, env, logfile)
     io.stderr:write(path .. " " .. table.concat(cmd, " ", 1) .. "\n")
-
+    return run_quiet(path, cmd, env, logfile)
+end
+function run_quiet(path, cmd, env, logfile)
     local f,r,w
     if logfile then
         local err
@@ -305,7 +307,7 @@ function as_user(env, user, arg)
         flags = {"-u", user, "--", table.unpack(arg)}
     end
 
-    run(env.SU, flags)
+    run_quiet(env.SU, flags)
 end
 
 local M = {
@@ -322,6 +324,7 @@ local M = {
     prompt      = prompt,
     run_shell   = run_shell,
     run         = run,
+    run_quiet   = run_quiet,
     capture     = capture,
     shallowcopy = shallowcopy,
     am_not_owner= am_not_owner,

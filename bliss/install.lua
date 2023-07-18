@@ -50,7 +50,7 @@ local function install(env, arg)
         for k,v in ipairs(tar_manifest) do tar_manifest[k] = v[1] end
         table.sort(tar_manifest)
 
-		-- TODO: diff manifests, remove old files, verify new files
+        -- TODO: diff manifests, remove old files, verify new files
 
         -- PWD must contain the files
         for _, file in ipairs(tar_manifest) do
@@ -73,12 +73,12 @@ local function install(env, arg)
                 local dirname = libgen.dirname(_file)
                 local sb = sys_stat.stat(_file)
                 if sb and sys_stat.S_ISLNK(sb.st_mode) ~= 0 then
-                    if not utils.run("cp", {"-fP", "./"..file, dirname .. "/."}) then os.exit(false) end
+                    if not utils.run_quiet("cp", {"-fP", "./"..file, dirname .. "/."}) then os.exit(false) end
                 else
                     local _tmp_file = dirname.."/__bliss-tmp-"..pkgname.."-"..libgen.basename(file).."-"..env.PID
 
-                    if not utils.run("cp", {"-fP", "./"..file, _tmp_file}) or
-                        not utils.run("mv", {"-f", _tmp_file, _file}) then
+                    if not utils.run_quiet("cp", {"-fP", "./"..file, _tmp_file}) or
+                        not utils.run_quiet("mv", {"-f", _tmp_file, _file}) then
                         -- run pkg_clean
                         getmetatable(env.atexit).__gc()
 
