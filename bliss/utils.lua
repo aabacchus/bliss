@@ -1,5 +1,6 @@
 -- Copyright 2023 phoebos
 local libgen = require "posix.libgen"
+local pwd = require "posix.pwd"
 local sys_stat = require "posix.sys.stat"
 local sys_wait = require "posix.sys.wait"
 local unistd = require "posix.unistd"
@@ -7,7 +8,7 @@ local stdlib = require "posix.stdlib"
 local signal = require "posix.signal"
 
 local colors = {"", "", ""}
-local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, mkcd, rm_rf, log, warn, die, prompt, run_shell, run, capture, shallowcopy, as_user
+local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, mkcd, rm_rf, log, warn, die, prompt, run_shell, run, capture, shallowcopy, am_not_owner, as_user
 
 function setup()
     colors = setup_colors()
@@ -283,6 +284,16 @@ function shallowcopy(t)
     return u
 end
 
+-- If process is not the owner of file, return the name of the owner; otherwise nil.
+function am_not_owner(file)
+    local sb = sys_stat.stat(file)
+    if not sb then die("Failed to stat '"..file.."'") end
+    if sb.st_uid ~= unistd.getuid() then
+        return pwd.getpwuid(sb.st_uid).pw_name
+    end
+    return nil
+end
+
 function as_user(env, user, arg)
     print("Using '".. env.SU .. "' (to become "..user..")")
 
@@ -313,6 +324,7 @@ local M = {
     run         = run,
     capture     = capture,
     shallowcopy = shallowcopy,
+    am_not_owner= am_not_owner,
     as_user     = as_user,
 }
 
