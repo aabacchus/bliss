@@ -10,16 +10,17 @@ local function tar_extract(tarball)
     end
 
     local top = dirent.dir()
-    if #top > 3 then utils.die("more than 1 top-level directory in tarball " .. tarball) end
-    for _,v in ipairs(top) do if v ~= "." and v ~= ".." then top = v break end end
+    if #top <= 3 then
+        for _,v in ipairs(top) do if v ~= "." and v ~= ".." then top = v break end end
 
-    local d = dirent.dir(top)
-    for _,file in ipairs(d) do
-        if file ~= "." and file ~= ".." then
-            assert(file:sub(1,1) ~= "/")
-            local ok, e = stdio.rename(top.."/"..file, file)
-            if not ok then
-                utils.die("couldn't rename " .. file .. ": " .. e)
+        local d = dirent.dir(top)
+        for _,file in ipairs(d) do
+            if file ~= "." and file ~= ".." then
+                assert(file:sub(1,1) ~= "/")
+                local ok, e = stdio.rename(top.."/"..file, file)
+                if not ok then
+                    utils.die("couldn't rename " .. file .. ": " .. e)
+                end
             end
         end
     end
