@@ -17,6 +17,8 @@ function setup()
         CHK     = os.getenv("KISS_CHK")
                     or get_available("openssl", "sha256sum", "sha256", "shasum", "digest")
                     or warn("No sha256 utility found"),
+        CHOICE  = tonumber(os.getenv("KISS_CHOICE")) or 1,
+        COLOR   = tonumber(os.getenv("KISS_COLOR")) or 1,
         COMPRESS= os.getenv("KISS_COMPRESS") or "gz",
         DEBUG   = tonumber(os.getenv("KISS_DEBUG")) or 0,
         FORCE   = tonumber(os.getenv("KISS_FORCE")) or 0,
