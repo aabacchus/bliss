@@ -28,7 +28,7 @@ local function build_extract(env, p)
         utils.mkcd(env.mak_dir.."/"..p.pkg.."/"..(p.sources[k][2] or ""))
         local r = p.sources[k][1]
         if r:match("^git%+") then
-            utils.run("cp", {"-PRf", v.."/.", "."})
+            if not utils.run("cp", {"-PRf", v.."/.", "."}) then os.exit(false) end
         elseif r:match("%.tar$")
             or r:match("%.tar%...$")
             or r:match("%.tar%....$")
@@ -36,7 +36,7 @@ local function build_extract(env, p)
             or r:match("%.t.z") then
             archive.tar_extract(v)
         else
-            utils.run("cp", {"-PRf", v, "."})
+            if not utils.run("cp", {"-PRf", v, "."}) then os.exit(false) end
         end
     end
 end
