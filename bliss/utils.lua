@@ -47,7 +47,8 @@ function setup()
     env.sys_db  = env.ROOT .. "/" .. env.pkg_db
     env.sys_ch  = env.ROOT .. "/" .. env.cho_db
 
-    env.cac_dir = (os.getenv("XDG_CACHE_HOME") or (os.getenv("HOME") .. "/.cache")) .. "/kiss"
+    local xdg = os.getenv("XDG_CACHE_HOME")
+    env.cac_dir = (xdg and #xdg > 0 and xdg or (os.getenv("HOME") .. "/.cache")) .. "/kiss"
     env.src_dir = env.cac_dir .. "/sources"
     env.log_dir = env.cac_dir .. "/logs/" .. string.sub(env.time, 1, 10)
     env.bin_dir = env.cac_dir .. "/bin"
