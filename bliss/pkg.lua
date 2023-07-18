@@ -39,10 +39,10 @@ local function iscached(env, pkg, version)
 
     local sb = sys_stat.stat(f)
     if sb then
-        return true
+        return f
     else
         local g = glob.glob(myglob, 0)
-        return not not g
+        return g and g[1] or nil
     end
 end
 
