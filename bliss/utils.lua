@@ -1,4 +1,5 @@
 -- Copyright 2023 phoebos
+local libgen = require "posix.libgen"
 local sys_stat = require "posix.sys.stat"
 local sys_wait = require "posix.sys.wait"
 local unistd = require "posix.unistd"
@@ -6,7 +7,7 @@ local stdlib = require "posix.stdlib"
 local signal = require "posix.signal"
 
 local colors = {"", "", ""}
-local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, mkcd, rm_rf, log, warn, die, prompt, run_shell, run, capture, shallowcopy
+local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, mkcd, rm_rf, log, warn, die, prompt, run_shell, run, capture, shallowcopy, as_user
 
 function setup()
     colors = setup_colors()
@@ -282,6 +283,20 @@ function shallowcopy(t)
     return u
 end
 
+function as_user(env, user, arg)
+    print("Using '".. env.SU .. "' (to become "..user..")")
+
+    local flags
+    if libgen.basename(env.SU) == "su" then
+        -- TODO: stdin problem?
+        flags = {"-c", '"'..table.concat(arg, '" "')..'"', user}
+    else
+        flags = {"-u", user, "--", table.unpack(arg)}
+    end
+
+    run(env.SU, flags)
+end
+
 local M = {
     setup       = setup,
     trap_on     = trap_on,
@@ -298,6 +313,7 @@ local M = {
     run         = run,
     capture     = capture,
     shallowcopy = shallowcopy,
+    as_user     = as_user,
 }
 
 return M
