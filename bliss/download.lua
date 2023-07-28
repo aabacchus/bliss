@@ -23,6 +23,7 @@ local function http(env, p, source, dest)
         }
         local args = args_map[libgen.basename(env.GET)] or utils.die("'"..env.GET.."' is unsupported as KISS_GET")
 
+        sys_stat.mkdir(libgen.dirname(dest))
         utils.log(p, "Downloading " .. source)
 
         --TODO: tmp file
