@@ -142,7 +142,7 @@ local function gen_etcsums(env, p)
         line = line[1]
         if string.sub(line, 1, 5) == "/etc/" and string.sub(line, -1) ~= "/" then
             local f = destdir .. line
-            local sb = sys_stat.stat(f)
+            local sb = sys_stat.lstat(f)
             if sys_stat.S_ISLNK(sb.st_mode) ~= 0 then
                 f = "/dev/null"
             end
