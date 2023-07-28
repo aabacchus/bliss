@@ -78,7 +78,18 @@ local function args(env, arg)
 
     local f = args_map[char]
     if f then
-        f(env, arg)
+        -- Run in protected mode. This is to catch bugs rather than user-facing
+        -- error handling. None of the action functions return a value; we're
+        -- only interested in if they fail or succeed.
+        if not xpcall(f, function (msg)
+            print(msg)
+            print(debug.traceback())
+        end, env, arg)
+        then
+            bliss.log("An exception was caught, not removing temporary files")
+            bliss.trap_off(env)
+            os.exit(1)
+        end
     else
         -- TODO: ext
         usage()
