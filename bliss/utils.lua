@@ -167,7 +167,7 @@ function mkcd(...)
 end
 
 function rm_rf(path)
-    os.execute("rm -rf \"" .. path .. "\"")
+    return os.execute("rm -rf \"" .. path .. "\"")
 end
 
 function log(name, msg, category)
