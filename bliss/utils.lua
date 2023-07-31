@@ -269,13 +269,15 @@ function run_quiet(path, cmd, env, logfile)
     end
 end
 
--- Returns an array of lines printed by cmd
+-- If cmd fails, return nil. Otherwise, return an array of lines
+-- printed by cmd.
 function capture(cmd)
     local p = io.popen(cmd, "r")
     local res = {}
     for line in p:lines() do
         table.insert(res, line)
     end
+    if not p:close() then return nil end
     return res
 end
 
