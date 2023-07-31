@@ -127,7 +127,7 @@ end
 function split(s, sep)
     if not s then return {} end
     local c = {}
-    for a in string.gmatch(s, "[^%s"..sep.."]+") do
+    for a in string.gmatch(s, "[^"..sep.."]+") do
         table.insert(c, a)
     end
     return c
