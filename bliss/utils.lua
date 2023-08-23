@@ -94,7 +94,7 @@ function get_available(...)
     for i = 1, select("#", ...) do
         x = select(i, ...)
         res = capture("command -v " .. x)
-        if res[1] then return res[1] end
+        if res and res[1] then return res[1] end
     end
     return nil
 end
