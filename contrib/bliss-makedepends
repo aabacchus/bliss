@@ -1,0 +1,30 @@
+#!/usr/bin/env lua
+-- List packages which are only make deps
+local bliss = require "bliss"
+local dirent = require "posix.dirent"
+local sys_stat = require "posix.sys.stat"
+
+local env = bliss.setup()
+local deps = {}
+
+for pkg in dirent.files(env.sys_db) do
+	if string.sub(pkg, 1, 1) ~= "." then
+
+		local repo_dir = env.sys_db .. "/" .. pkg
+		for _,line in ipairs(bliss.find_depends(pkg, repo_dir)) do
+			local t = line[2] == "make"
+			deps[line[1]] = (t and deps[line[1]] == nil) or (t and deps[line[1]])
+		end
+	end
+end
+
+local makedeps = {}
+for k,v in pairs(deps) do
+	-- only print if installed
+	if v and sys_stat.stat(env.sys_db .. "/" .. k) then
+		table.insert(makedeps, k)
+	end
+end
+
+table.sort(makedeps)
+for _,v in ipairs(makedeps) do print(v) end
