@@ -1,6 +1,11 @@
+--- List packages.
+-- @module bliss.list
 local pkg = require "bliss.pkg"
 local dirent = require "posix.dirent"
 
+--- The list action.
+-- @tparam env env
+-- @tparam table arg list of packages to search. If none, list all packages.
 local function list(env, arg)
     if #arg == 0 then
         for file in dirent.files(env.sys_db) do
@@ -18,6 +23,7 @@ local function list(env, arg)
     end
 end
 
+--- @export
 local M = {
     list = list,
 }

@@ -1,9 +1,12 @@
+--- Tarball creation and extraction.
+-- @module bliss.archive
 local utils = require "bliss.utils"
 local dirent = require "posix.dirent"
 local stdio = require "posix.stdio"
 local unistd = require "posix.unistd"
 
--- extracts tarball to PWD
+--- Extract a tarball to PWD.
+-- @tparam string tarball filename of tarball
 local function tar_extract(tarball)
     if not utils.run("tar", {"xf", tarball}) then
         utils.die("failed to extract "..tarball)
@@ -26,7 +29,9 @@ local function tar_extract(tarball)
     end
 end
 
--- p is a package table as in bliss.build
+--- Create a tarball.
+-- @tparam env env
+-- @tparam ppkg p as in the format used in bliss.build
 local function tar_create(env, p)
     utils.log(p.pkg, "Creating tarball")
     unistd.chdir(env.pkg_dir .. "/" .. p.pkg)
@@ -49,6 +54,7 @@ local function tar_create(env, p)
     utils.log(p.pkg, "Successfully created tarball")
 end
 
+--- @export
 local M = {
     tar_extract = tar_extract,
     tar_create = tar_create,

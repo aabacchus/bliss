@@ -3,6 +3,7 @@ project = "bliss 0.0.0"
 title = "bliss 0.0.0 reference"
 description = "kiss in Lua"
 
+not_luadoc = true
 output = "doc"
 sort = true
 readme = "README.md"

@@ -1,3 +1,5 @@
+--- Downloading routines.
+-- @module bliss.download
 local utils = require "bliss.utils"
 local pkg = require "bliss.pkg"
 local sys_stat = require "posix.sys.stat"
@@ -44,7 +46,12 @@ local function file(env, p, source, dest)
     end
 end
 
--- download each source to dest.
+--- Download each source to dest.
+-- Currently handles http, git, and local files.
+-- @tparam env env
+-- @tparam string p package name (just used as a label for log messages)
+-- @tparam table sources list of sources
+-- @tparam table dests list of destinations
 local function download_sources(env, p, sources, dests)
     assert(#dests == #sources)
 
@@ -56,7 +63,9 @@ local function download_sources(env, p, sources, dests)
     end
 end
 
--- this is the download action (ie. kiss d)
+--- The download action.
+-- @tparam env env
+-- @tparam table arg list of packages to download sources for
 local function download(env, arg)
     if #arg == 0 then return end -- TODO
 
@@ -73,6 +82,7 @@ local function download(env, arg)
     end
 end
 
+--- @export
 local M = {
     download = download,
     download_sources = download_sources,

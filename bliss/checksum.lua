@@ -1,9 +1,13 @@
+--- Checksum routines.
+-- @module bliss.checksum
 local utils = require "bliss.utils"
 local b3sum = require "bliss.b3sum"
 local pkg = require "bliss.pkg"
 local download = require "bliss.download"
 
--- returns a string of the BLAKE3 checksum of the contents of filename
+--- Get the checksum of a single file.
+-- @tparam string filename
+-- @treturn string the BLAKE3 checksum of the contents of filename
 local function checksum_file(filename)
     local f = assert(io.open(filename))
     local ctx = b3sum.init()
@@ -16,6 +20,10 @@ local function checksum_file(filename)
     return b3sum.finalize(ctx, 33)
 end
 
+--- The checksum action.
+-- Generates checksums for all the packages.
+-- @tparam env env
+-- @tparam table arg list of packages
 local function checksum(env, arg)
     if #arg == 0 then utils.die("need a package") end
     for _,p in ipairs(arg) do
@@ -46,6 +54,10 @@ local function checksum(env, arg)
     end
 end
 
+--- Verify all the checksums for a package
+-- @tparam string p package name
+-- @tparam string repo_dir package directory
+-- @tparam table caches list of downloaded files to checksum
 local function verify_checksums(p, repo_dir, caches)
     utils.log(p, "Verifying sources")
 
@@ -61,6 +73,7 @@ local function verify_checksums(p, repo_dir, caches)
     end
 end
 
+--- @export
 local M = {
     checksum = checksum,
     checksum_file = checksum_file,

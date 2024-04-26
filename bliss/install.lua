@@ -1,9 +1,14 @@
+--- Install a built package.
+-- @module bliss.install
 local archive = require "bliss.archive"
 local utils = require "bliss.utils"
 local pkg = require "bliss.pkg"
 local libgen = require "posix.libgen"
 local sys_stat = require "posix.sys.stat"
 
+--- The install action.
+-- @tparam env env
+-- @tparam table arg
 local function install(env, arg)
     if #arg == 0 then end
 
@@ -94,6 +99,7 @@ local function install(env, arg)
     end
 end
 
+--- @export
 local M = {
     install = install,
 }

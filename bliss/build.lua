@@ -1,3 +1,5 @@
+--- Package building.
+-- @module bliss.build
 local utils = require "bliss.utils"
 local archive = require "bliss.archive"
 local pkg = require "bliss.pkg"
@@ -8,17 +10,26 @@ local libgen = require "posix.libgen"
 local sys_stat = require "posix.sys.stat"
 local unistd = require "posix.unistd"
 
---[[
--- These functions use a table containing cached package variables:
--- p = {
---     pkg,
---     repo_dir,
---     sources,
---     caches,
---     ver,
---     rel,
--- }
---]]
+
+--- @table ppkg
+-- Many functions use a table containing these cached package variables:
+-- @field pkg package name
+-- @field repo_dir package directory
+-- @field sources list of sources
+-- @field caches list of caches
+-- @field ver package version
+-- @field rel package release
+
+local function new_ppkg(p, repo_dir, sources, caches, ver, rel)
+	return {
+		pkg = p,
+		repo_dir = repo_dir,
+		sources = sources,
+		caches = caches,
+		ver = ver,
+		rel = rel
+	}
+end
 
 local function build_extract(env, p)
     if #p.caches == 0 then return end
@@ -154,6 +165,10 @@ local function gen_etcsums(env, p)
     etcsums:close()
 end
 
+
+--- The build action.
+-- @tparam env env
+-- @tparam table arg list of explicit packages to build
 local function build(env, arg)
     if #arg == 0 then end -- TODO
 
@@ -209,7 +224,7 @@ local function build(env, arg)
         download.download_sources(env, p, sources, caches)
         checksum.verify_checksums(p, repo_dir, caches)
 
-        table.insert(db, {pkg = p, repo_dir = repo_dir, sources = sources, caches = caches, ver = version[1], rel = version[2]})
+        table.insert(db, new_ppkg(p, repo_dir, sources, caches, version[1], version[2]))
     end
 
     -- Now build
@@ -231,6 +246,7 @@ local function build(env, arg)
     end
 end
 
+--- @export
 local M = {
     build = build,
 }

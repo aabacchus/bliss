@@ -1,7 +1,12 @@
+--- Package searching.
+-- @module bliss.search
 local utils = require "bliss.utils"
 local glob = require "posix.glob"
 local sys_stat = require "posix.sys.stat"
 
+--- The search action.
+-- @tparam env env
+-- @tparam table arg list of search queries
 local function search(env, arg)
 
     -- append sys_db to search path
@@ -30,6 +35,7 @@ local function search(env, arg)
     end
 end
 
+--- @export
 local M = {
     search = search,
 }

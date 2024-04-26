@@ -1,4 +1,8 @@
+--- Topological sorting.
 -- This module is not included in init.lua, but used locally by pkg.lua.
+-- @module bliss.tsort
+
+--- @type tsort
 local tsort = {}
 
 -- Returns a table of reverse deps
@@ -26,16 +30,21 @@ local function find_cycle(revlinks, start)
     return t, old
 end
 
+--- Get a new tsort object.
+-- @treturn tsort
 function tsort.new()
     return setmetatable({nodes={}}, {__index = tsort})
 end
 
--- deps is an array of ALL the deps for node. Calling add for the same node a
--- second time overwrites, not appends.
+--- Add a node.
+-- @tparam string node
+-- @tparam table deps array of all the deps for node. Calling add for the same node a second time overwrites, not appends.
 function tsort:add(node, deps)
     self.nodes[node] = deps
 end
 
+--- Sort the nodes.
+-- @treturn table sorted array of nodes
 function tsort:sort()
     if not self.nodes then return nil end
     local L = {}
