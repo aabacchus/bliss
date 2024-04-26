@@ -3,6 +3,8 @@ BLISS
 
 An implementation of the kiss package manager in Lua.
 
+<https://git.bvnf.space/bliss/>
+
  * [ ] alternatives
  * [x] build
  * [ ] hooks
@@ -37,3 +39,6 @@ Dependencies
 Rationale: plain Lua lacks UNIX-specific bindings which we need (working with
 files and paths) so either I would write a set of Lua bindings to C, but it's as
 simple to use an existing set such as luaposix.
+
+[LDoc](https://github.com/lunarmodules/LDoc/) is used for internal documentation.
+For users, see kiss's documentation.
