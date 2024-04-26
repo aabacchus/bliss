@@ -23,3 +23,9 @@ bliss/b3sum.so: bliss/b3sum.c
 
 clean:
 	rm -f bliss/b3sum.so
+
+doc:
+	rm -fr doc/
+	ldoc .
+
+.PHONY: all install clean doc

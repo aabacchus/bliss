@@ -1,3 +1,6 @@
+--- Package processing routines
+-- @module bliss.pkg
+
 local utils = require "bliss.utils"
 local tsort = require "bliss.tsort"
 local glob = require "posix.glob"

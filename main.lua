@@ -1,24 +1,27 @@
 #!/usr/bin/env lua
+--- Executable interface to the bliss library.
+-- @script bliss
 local bliss = require "bliss"
 
 local function version()
-    print("0.0.0")
+    print(bliss.version)
 end
 
 local function usage()
-    bliss.log("bliss [a|b|c|d|i|l|r|s|u|U|v] [pkg]...")
-    --bliss.log("alternatives List and swap alternatives")
-    bliss.log("build        Build packages")
-    bliss.log("checksum     Generate checksums")
-    bliss.log("download     Download sources")
-    bliss.log("install      Install packages")
-    bliss.log("list         List installed packages")
-    --bliss.log("remove       Remove packages")
-    bliss.log("search       Search for packages")
-    --bliss.log("update       Update the repositories")
-    --bliss.log("upgrade      Update the system")
-    bliss.log("version      Package manager version")
-
+    --- @usage
+    local usage = [[bliss [a|b|c|d|i|l|r|s|u|U|v] [pkg]...
+    alternatives List and swap alternatives
+    build        Build packages
+    checksum     Generate checksums
+    download     Download sources
+    install      Install packages
+    list         List installed packages
+    remove       Remove packages
+    search       Search for packages
+    update       Update the repositories
+    upgrade      Update the system
+    version      Package manager version]]
+    print(usage)
     os.exit(true)
 end
 

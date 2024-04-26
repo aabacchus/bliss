@@ -1,4 +1,6 @@
--- Copyright 2023 phoebos
+--- Commonly used utilities and initialisation code
+-- @module bliss.utils
+
 local libgen = require "posix.libgen"
 local pwd = require "posix.pwd"
 local sys_stat = require "posix.sys.stat"
@@ -10,6 +12,8 @@ local signal = require "posix.signal"
 local colors = {"", "", ""}
 local setup, setup_colors, check_execute, get_available, get_pkg_clean, trap_on, trap_off, split, mkdirp, mkcd, rm_rf, log, warn, die, prompt, run_shell, run, run_quiet, capture, shallowcopy, am_not_owner, as_user
 
+--- Setup the environment.
+-- @treturn env The environment table containing the parsed KISS_* variables, atexit handler, and temporary directory names.
 function setup()
     colors = setup_colors()
     check_execute()
@@ -89,6 +93,10 @@ function check_execute()
     if not os.execute() then die("cannot execute shell commands") end
 end
 
+--- Find the path of the first command which exists.
+-- @param ... list of commands to try
+-- @treturn[1] string the path to the first command in the list which exists
+-- @treturn[2] nil if none found
 function get_available(...)
     local x, res
     for i = 1, select("#", ...) do
@@ -99,7 +107,7 @@ function get_available(...)
     return nil
 end
 
--- returns a function with cached env so that it can be called without args or globals.
+-- makes a closure with cached env so that it can be called without args or globals.
 function get_pkg_clean(env)
     return function ()
         if env.DEBUG ~= 0 then return end
@@ -111,6 +119,9 @@ function get_pkg_clean(env)
     end
 end
 
+--- Turn on the cleanup trap.
+-- @tparam env env
+-- @treturn table env.atexit
 function trap_on(env)
     signal.signal(signal.SIGINT, function () os.exit(false) end)
     -- use a finalizer to get pkg_clean to run on EXIT. A reference to atexit must
@@ -119,11 +130,17 @@ function trap_on(env)
     return env.atexit
 end
 
+--- Turn off the cleanup trap.
+-- @tparam env env
 function trap_off(env)
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     setmetatable(env.atexit, {})
 end
 
+--- Split a string.
+-- @tparam string s string to split
+-- @tparam string sep delimiter
+-- @treturn table array of substrings
 function split(s, sep)
     if not s then return {} end
     local c = {}
@@ -133,6 +150,11 @@ function split(s, sep)
     return c
 end
 
+--- Make directories recursively.
+-- The equivalent of running `mkdir -p ...`.
+-- @{die}s if an element of the path already exists and is not a directory, or if making a directory fails.
+-- Does not fail for directories which exist.
+-- @param ... list of directory names
 function mkdirp(...)
     for i = 1, select("#", ...) do
         local path = select(i, ...)
@@ -160,16 +182,26 @@ function mkdirp(...)
     end
 end
 
+--- Make directories and chdir into the first one.
+-- @param ... list of directories
 function mkcd(...)
     mkdirp(...)
     local first = select(1, ...)
     unistd.chdir(first)
 end
 
+--- Recursively remove files and directories.
+-- This simply executes `rm -rf "path"`.
+-- @tparam string path path to remove
 function rm_rf(path)
     return os.execute("rm -rf \"" .. path .. "\"")
 end
 
+--- Print a formatted log message.
+-- Follows the same convention as kiss.
+-- @tparam string name
+-- @tparam[opt] string msg
+-- @tparam[opt] string category
 function log(name, msg, category)
     -- This is a direct translation of kiss's log(). Quite hacky.
     io.stderr:write(string.format("%s%s %s%s%s %s\n",
@@ -181,15 +213,20 @@ function log(name, msg, category)
         msg or ""))
 end
 
+--- Print a warning.
 function warn(name, msg)
     log(name, msg, "WARNING")
 end
 
+--- Print an error and exit.
 function die(name, msg)
     log(name, msg, "ERROR")
     os.exit(false)
 end
 
+--- Prompt the user to continue or quit.
+-- @tparam env env
+-- @tparam[opt] string msg
 function prompt(env, msg)
     if msg then log(msg) end
     log("Continue? Press Enter to continue or Ctrl+C to abort")
@@ -198,19 +235,31 @@ function prompt(env, msg)
     end
 end
 
--- cmd is a string.
+--- Run a command in the system shell.
+-- Also prints the command.
+-- @see run
+-- @see capture
+-- @tparam string cmd
 function run_shell(cmd)
     io.stderr:write(cmd.."\n")
     return os.execute(cmd)
 end
 
--- path is a string, cmd is an array, env is a table
--- Despite the variable name, path doesn't have to be absolute because execp is used.
--- If logfile is provided, the output of cmd is copied to a file of that name.
+--- Run an executable directly.
+-- @tparam string path file to run. Doesn't have to be an absolute path.
+-- @tparam table cmd array of arguments
+-- @tparam[opt] table env table of environment variables for the new process
+-- @tparam[opt] string logfile if provided, the output is copied to this file.
 function run(path, cmd, env, logfile)
     io.stderr:write(path .. " " .. table.concat(cmd, " ", 1) .. "\n")
     return run_quiet(path, cmd, env, logfile)
 end
+--- Run without printing the command.
+-- @see run
+-- @tparam string path
+-- @tparam table cmd
+-- @tparam[opt] table env
+-- @tparam[opt] string logfile
 function run_quiet(path, cmd, env, logfile)
     local f,r,w
     if logfile then
@@ -269,8 +318,11 @@ function run_quiet(path, cmd, env, logfile)
     end
 end
 
--- If cmd fails, return nil. Otherwise, return an array of lines
--- printed by cmd.
+--- Run a command in the shell and capture its output.
+-- @see run
+-- @tparam string cmd command to run
+-- @treturn[1] table an array of lines printed by cmd
+-- @treturn[2] nil If cmd fails
 function capture(cmd)
     local p = io.popen(cmd, "r")
     local res = {}
@@ -281,13 +333,19 @@ function capture(cmd)
     return res
 end
 
+--- Make a shallow copy of a table.
+-- @tparam table t
+-- @treturn table a table with the first-level keys of t copied
 function shallowcopy(t)
     local u = {}
     for k,v in pairs(t) do u[k] = v end
     return u
 end
 
--- If process is not the owner of file, return the name of the owner; otherwise nil.
+--- Check if the process is not the owner of a file.
+-- @tparam string file
+-- @treturn[1] string username of file owner
+-- @treturn[2] nil if process owns file
 function am_not_owner(file)
     local sb = sys_stat.stat(file)
     if not sb then die("Failed to stat '"..file.."'") end
@@ -297,6 +355,10 @@ function am_not_owner(file)
     return nil
 end
 
+--- Run a command as a different user.
+-- @tparam env env containing the KISS_SU to use
+-- @tparam string user user to become
+-- @tparam table arg array of command arguments
 function as_user(env, user, arg)
     print("Using '".. env.SU .. "' (to become "..user..")")
 
@@ -311,6 +373,7 @@ function as_user(env, user, arg)
     run_quiet(env.SU, flags)
 end
 
+--- @export
 local M = {
     setup       = setup,
     trap_on     = trap_on,

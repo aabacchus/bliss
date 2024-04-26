@@ -1,6 +1,10 @@
+--- module initialisation
+-- @module bliss
 local cwd = (...):gsub("%.init$", "")
 
 local M = {}
+--- module version
+M.version = "0.0.0"
 
 -- merge these into the toplevel bliss module
 local names = {"utils", "search", "list", "pkg", "download", "checksum", "build", "install"}
