@@ -5,7 +5,7 @@ LUA = lua
 LUA_LMOD = $$(pkgconf --variable=INSTALL_LMOD $(LUA))
 LUA_CMOD = $$(pkgconf --variable=INSTALL_CMOD $(LUA))
 
-CFLAGS = -Wall -Wextra -pedantic
+CFLAGS = -Wall -Wextra -pedantic $$(pkgconf --cflags $(LUA))
 LDFLAGS = -shared -fPIC
 LIBS = $$(pkgconf --libs $(LUA))
 
