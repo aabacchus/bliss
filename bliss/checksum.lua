@@ -48,6 +48,7 @@ local function checksum(env, arg)
             f:write(sums)
             utils.log(p, "Generated checksums")
         else
+            -- TODO: don't make checksum file then
             utils.log(p, "No sources needing checksums")
         end
         f:close()
@@ -63,6 +64,7 @@ local function verify_checksums(p, repo_dir, caches)
 
     local sums = pkg.find_checksums(p, repo_dir)
     for i,v in ipairs(caches) do
+        -- TODO: skip git
         local sum = checksum_file(v)
         if #sums[i][1] == 64 then
             utils.die(p, "Detected sha256 checksums")

@@ -6,6 +6,7 @@ local tsort = require "bliss.tsort"
 local glob = require "posix.glob"
 local sys_stat = require "posix.sys.stat"
 
+--- return an array of arrays of split lines
 local function read_lines(file)
     local t = {}
     local f = io.open(file)
@@ -155,6 +156,7 @@ local function order(env, pkgs)
     return r
 end
 
+--- @export
 local M = {
     read_lines = read_lines,
     find = find,
