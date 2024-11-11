@@ -1,12 +1,13 @@
 .POSIX:
 
 PREFIX = /usr
-LUA_LMOD = $$(pkgconf --variable=INSTALL_LMOD lua)
-LUA_CMOD = $$(pkgconf --variable=INSTALL_CMOD lua)
+LUA = lua
+LUA_LMOD = $$(pkgconf --variable=INSTALL_LMOD $(LUA))
+LUA_CMOD = $$(pkgconf --variable=INSTALL_CMOD $(LUA))
 
 CFLAGS = -Wall -Wextra -pedantic
 LDFLAGS = -shared -fPIC
-LIBS = $$(pkgconf --libs lua)
+LIBS = $$(pkgconf --libs $(LUA))
 
 all: bliss/b3sum.so
 
