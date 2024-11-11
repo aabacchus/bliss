@@ -28,3 +28,5 @@ end
 
 table.sort(makedeps)
 for _,v in ipairs(makedeps) do print(v) end
+
+env.atexit()

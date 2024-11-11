@@ -70,12 +70,14 @@ function setup()
     mkdirp(env.ROOT .. "/")
     mkdirp(env.src_dir, env.log_dir, env.bin_dir,
         env.mak_dir, env.pkg_dir, env.tar_dir, env.tmp_dir)
+    --trap_on(env)
+    local atexit = get_pkg_clean(env)
+    env.atexit = atexit
 
     -- make sure os.exit always closes the Lua state
     local o = os.exit
-    os.exit = function(code, close) o(code, not close) end
+    os.exit = function(code, close) atexit(); o(code, true) end
 
-    trap_on(env)
     return env
 end
 
@@ -126,7 +128,7 @@ function trap_on(env)
     signal.signal(signal.SIGINT, function () os.exit(false) end)
     -- use a finalizer to get pkg_clean to run on EXIT. A reference to atexit must
     -- be kept for the whole duration of the program (should it be a global?)
-    env.atexit = setmetatable({}, {__gc = get_pkg_clean(env)})
+    --env.atexit = setmetatable({}, {__gc = get_pkg_clean(env)})
     return env.atexit
 end
 
@@ -134,7 +136,7 @@ end
 -- @tparam env env
 function trap_off(env)
     signal.signal(signal.SIGINT, signal.SIG_IGN)
-    setmetatable(env.atexit, {})
+    --setmetatable(env.atexit, {})
 end
 
 --- Split a string.

@@ -89,8 +89,6 @@ local function args(env, arg)
             print(debug.traceback())
         end, env, arg)
         then
-            bliss.log("An exception was caught, not removing temporary files")
-            bliss.trap_off(env)
             os.exit(1)
         end
     else
@@ -101,3 +99,4 @@ end
 
 local env = bliss.setup()
 args(env, arg)
+env.atexit()

@@ -29,3 +29,4 @@ local env = bliss.setup()
 table.insert(env.PATH, 1, env.sys_db)
 
 lists(env, arg)
+env.atexit()
