@@ -84,7 +84,6 @@ local function install(env, arg)
                         if not utils.run_quiet("cp", {"-fP", "./"..file, _tmp_file}) or
                             not utils.run_quiet("mv", {"-f", _tmp_file, _file}) then
                             -- run pkg_clean
-                            --getmetatable(env.atexit).__gc()
                             env.atexit()
 
                             utils.log(pkgname, "Failed to install package", "ERROR")
