@@ -233,7 +233,8 @@ function prompt(env, msg)
     if msg then log(msg) end
     log("Continue? Press Enter to continue or Ctrl+C to abort")
     if env.PROMPT ~= 0 then
-        io.stdin:read()
+        local s, err = pcall(io.stdin.read, io.stdin)
+        if not s then os.exit(false) end
     end
 end
 
