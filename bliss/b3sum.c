@@ -90,6 +90,10 @@ const struct luaL_Reg fns[] = {
 
 int
 luaopen_bliss_b3sum(lua_State *L) {
+#if LUA_VERSION_NUM > 501
     luaL_newlib(L, fns);
+#else
+	luaL_openlib(L, "bliss.b3sum", fns, 0);
+#endif
     return 1;
 }
