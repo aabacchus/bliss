@@ -32,7 +32,7 @@ Lua ...
 Dependencies
 ------------
 
- * Lua 5.4
+ * Lua 5.4 (but I've tried to make it work with 5.1 too for LuaJIT)
  * luaposix library <https://github.com/luaposix/luaposix>
  * BLAKE3 C library <https://git.sr.ht/~mcf/b3sum> (built with -fPIC)
 
