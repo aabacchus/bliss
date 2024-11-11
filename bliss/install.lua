@@ -55,44 +55,54 @@ local function install(env, arg)
         for k,v in ipairs(tar_manifest) do tar_manifest[k] = v[1] end
         table.sort(tar_manifest)
 
-        -- TODO: diff manifests, remove old files, verify new files
-
         -- PWD must contain the files
-        for _, file in ipairs(tar_manifest) do
-            local _file = env.ROOT .. file
+        local function iterate_files(env, tar_manifest, pkgname)
+            for _, file in ipairs(tar_manifest) do
+                local _file = env.ROOT .. file
 
-            if file:sub(-1) == "/" then
-                -- Directory
-                if not sys_stat.stat(_file) then
-                    local mode = sys_stat.stat("./"..file).st_mode
-                    local c,msg = sys_stat.mkdir(_file, mode)
-                    if not c then utils.die("mkdir "..msg) end
-                end
-            else
-                if file:match("^/etc/") then
-                    -- TODO: compare checksums
-                    warn(pkgname, "saving "..file.." as "..file..".new")
-                    _file = _file .. ".new"
-                end
-
-                local dirname = libgen.dirname(_file)
-                local sb = sys_stat.stat(_file)
-                if sb and sys_stat.S_ISLNK(sb.st_mode) ~= 0 then
-                    if not utils.run_quiet("cp", {"-fP", "./"..file, dirname .. "/."}) then os.exit(false) end
+                if file:sub(-1) == "/" then
+                    -- Directory
+                    if not sys_stat.stat(_file) then
+                        local mode = sys_stat.stat("./"..file).st_mode
+                        local c,msg = sys_stat.mkdir(_file, mode)
+                        if not c then utils.die("mkdir "..msg) end
+                    end
                 else
-                    local _tmp_file = dirname.."/__bliss-tmp-"..pkgname.."-"..libgen.basename(file).."-"..env.PID
+                    if file:match("^/etc/") then
+                        -- TODO: compare checksums
+                        warn(pkgname, "saving "..file.." as "..file..".new")
+                        _file = _file .. ".new"
+                    end
 
-                    if not utils.run_quiet("cp", {"-fP", "./"..file, _tmp_file}) or
-                        not utils.run_quiet("mv", {"-f", _tmp_file, _file}) then
-                        -- run pkg_clean
-                        getmetatable(env.atexit).__gc()
+                    local dirname = libgen.dirname(_file)
+                    local sb = sys_stat.stat(_file)
+                    if sb and sys_stat.S_ISLNK(sb.st_mode) ~= 0 then
+                        if not utils.run_quiet("cp", {"-fP", "./"..file, dirname .. "/."}) then os.exit(false) end
+                    else
+                        local _tmp_file = dirname.."/__bliss-tmp-"..pkgname.."-"..libgen.basename(file).."-"..env.PID
 
-                        utils.log(pkgname, "Failed to install package", "ERROR")
-                        utils.die(pkgname, "Filesystem now dirty, manual repair needed.")
+                        if not utils.run_quiet("cp", {"-fP", "./"..file, _tmp_file}) or
+                            not utils.run_quiet("mv", {"-f", _tmp_file, _file}) then
+                            -- run pkg_clean
+                            --getmetatable(env.atexit).__gc()
+                            env.atexit()
+
+                            utils.log(pkgname, "Failed to install package", "ERROR")
+                            utils.die(pkgname, "Filesystem now dirty, manual repair needed.")
+                        end
                     end
                 end
             end
         end
+
+        -- TODO: diff manifests, remove old files, verify new files
+        --[[
+        eg.
+        if isinstalled(pkgname) then
+            diff, remove
+        end
+        --]]
+        iterate_files(env, tar_manifest, pkgname)
 
         utils.trap_on(env)
         utils.log(pkgname, "Installed successfully")
