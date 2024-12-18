@@ -82,7 +82,7 @@ end
 local function resolve_git(pkg, source, env)
     local fp = string.match(source[1], "/([^/]+)$")
     if not fp then  utils.die(pkg, "can't parse source '"..source[1].."'") end
-    fp = string.match(fp, "(.*)[@#]") or fp -- this follows kiss, but should it be (.-) (ie. shortest match)?
+    fp = string.match(fp, "(.-)[@#]") or fp -- NB: kiss does the longest match (.*) instead.
     return env.src_dir .. "/" .. pkg .. "/" .. (source[2] and source[2] .. "/" or "") .. fp .. "/"
 end
 
