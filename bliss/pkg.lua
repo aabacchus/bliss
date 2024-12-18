@@ -46,7 +46,7 @@ local function iscached(env, pkg, version)
         return f
     else
         local g = glob.glob(myglob, 0)
-        return g and g[1] or nil
+        return g and g[1] or false
     end
 end
 
