@@ -3,6 +3,7 @@
 local utils = require "bliss.utils"
 local dirent = require "posix.dirent"
 local stdio = require "posix.stdio"
+local stdlib = require "posix.stdlib"
 local unistd = require "posix.unistd"
 
 --- Extract a tarball to PWD.
@@ -16,13 +17,24 @@ local function tar_extract(tarball)
     if #top <= 3 then
         for _,v in ipairs(top) do if v ~= "." and v ~= ".." then top = v break end end
 
+        -- move parent directory to a unique name to avoid naming conflicts
+        local newtop, err = stdlib.mkdtemp(top .. "-XXXXXX")
+        if not newtop then
+            utils.die("couldn't create temporary directory: " .. err)
+        end
+        local ok, e = stdio.rename(top, newtop)
+        if not ok then utils.die("couldn't rename " .. top .." to " .. newtop .. ": " .. e) end
+
+        top = newtop
+
         local d = dirent.dir(top)
         for _,file in ipairs(d) do
             if file ~= "." and file ~= ".." then
                 assert(file:sub(1,1) ~= "/")
-                local ok, e = stdio.rename(top.."/"..file, file)
+                local fullpath = top .. "/" .. file
+                local ok, e = stdio.rename(fullpath, file)
                 if not ok then
-                    utils.die("couldn't rename " .. file .. ": " .. e)
+                    utils.die("couldn't rename " .. fullpath .. " to " .. file .. ": " .. e)
                 end
             end
         end
