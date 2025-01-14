@@ -1,0 +1,45 @@
+#!/usr/bin/env lua
+-- List packages which are not non-make deps of anything else
+local bliss = require "bliss"
+local dirent = require "posix.dirent"
+
+local env = bliss.setup()
+local all  = {}
+local deps = {
+	["baseinit"] = true,
+	["baselayout"] = true,
+	["busybox"] = true,
+	["bzip2"] = true,
+	["e2fsprogs"] = true,
+	["gcc"] = true,
+	["git"] = true,
+	["grub"] = true,
+	["kiss"] = true,
+	["make"] = true,
+	["musl"] = true,
+}
+
+for pkg in dirent.files(env.sys_db) do
+	if string.sub(pkg, 1, 1) ~= "." then
+		all[pkg] = true
+		local repo_dir = env.sys_db .. "/" .. pkg
+		for _,line in ipairs(bliss.find_depends(pkg, repo_dir)) do
+			if line[2] ~= "make" then
+				deps[line[1]] = true
+			end
+		end
+	end
+end
+
+-- get all elements in all but not in deps
+local orphans = {}
+for k in pairs(all) do
+	if not deps[k] then
+		table.insert(orphans, k)
+	end
+end
+
+table.sort(orphans)
+for _, v in ipairs(orphans) do print(v) end
+
+env.atexit()
