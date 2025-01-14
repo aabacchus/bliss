@@ -63,6 +63,8 @@ local function args(env, arg)
                 "KISS_TMPDIR="..env.TMPDIR,
                 "KISS_PID="..env.PID,
                 "_KISS_LVL="..env._LVL,
+                "LUA_PATH="..package.path,
+                "LUA_CPATH="..package.cpath,
             }
             table.move(arg, 0, #arg, #newarg+1, newarg)
 
