@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+printf "build script was given these args:"
+printf " %s" "$@"
+printf "\n"
+
+if [ -e testfile ]; then
+    printf "testfile found.\n"
+else
+    printf "testfile not found!\n"
+    exit 1
+fi

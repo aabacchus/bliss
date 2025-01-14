@@ -29,4 +29,7 @@ doc:
 	rm -fr doc/
 	ldoc .
 
-.PHONY: all install clean doc
+test: all
+	$(LUA) mytest.lua
+
+.PHONY: all install clean doc test
