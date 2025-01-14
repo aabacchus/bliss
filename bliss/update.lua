@@ -1,8 +1,11 @@
+--- Repository updating.
+-- @module bliss.update
 local utils = require "bliss.utils"
 local unistd = require "posix.unistd"
 
+--- The update action.
 local function update(env, arg)
-	-- args are ignored.
+	-- arg is ignored.
 
 	utils.log("Updating repositories")
 	local repos = {}
@@ -26,6 +29,7 @@ local function update(env, arg)
 
 end
 
+--- @export
 local M = {
 	update = update,
 }

@@ -22,5 +22,6 @@ file = {
 	"bliss/pkg.lua",
 	"bliss/search.lua",
 	"bliss/tsort.lua",
+	"bliss/update.lua",
 	"bliss/utils.lua",
 }
