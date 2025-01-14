@@ -1,0 +1,49 @@
+#!/usr/bin/env lua
+-- Show the size of a package
+local bliss = require "bliss"
+local sys_stat = require "posix.sys.stat"
+
+local function human_size(b)
+	local unit = "B"
+	local format = "%d%s"
+	if b > 1024 then
+		b = b/1024
+		unit = "kB"
+		format = "%.1f%s"
+		if b > 1024 then
+			b = b/1024
+			unit = "MB"
+			if b > 1024 then
+				b = b/1024
+				unit = "GB"
+			end
+		end
+	end
+	return format:format(b, unit)
+end
+
+local env = bliss.setup()
+
+local pkg = arg[1] or bliss.die("usage: bliss-size pkg")
+if not bliss.isinstalled(env, pkg) then
+	bliss.die(pkg, "not installed")
+end
+
+local totalsize = 0
+local files = bliss.read_lines(env.sys_db.."/"..pkg.."/manifest")
+for _,f in ipairs(files) do
+	f = f[1]
+	if string.sub(f, -1) ~= '/' then
+		local sb = sys_stat.lstat(f)
+		if not sb then
+			print(f .. " not found")
+		end
+		sb.st_blocks = sb.st_blocks * 512
+		totalsize = totalsize + sb.st_blocks
+		print(human_size(sb.st_blocks), f)
+	end
+end
+
+io.stderr:write(human_size(totalsize), "\t", "total", "\n")
+
+env.atexit()
