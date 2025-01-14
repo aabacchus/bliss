@@ -7,7 +7,7 @@ local M = {}
 M.version = "0.0.0"
 
 -- merge these into the toplevel bliss module
-local names = {"utils", "search", "list", "pkg", "download", "checksum", "build", "install"}
+local names = {"utils", "search", "list", "pkg", "download", "checksum", "build", "install", "update"}
 for _, name in ipairs(names) do
     local t = require(cwd .. "." .. name)
     for k, v in pairs(t) do
